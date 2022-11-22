@@ -12,6 +12,9 @@ import (
 
 const (
 	BufferSizeMax = 1<<16 - 20 - 8
+
+	// SIP协议规定的字符
+	tab = " \t"
 )
 
 type (
@@ -66,6 +69,14 @@ func (p *parser) parserPacket() {
 		// parser that line
 		if isRequest(line) {
 			log.Log.Info("that line is SIP request line")
+			method, uri, sipVersion, err := parseRequestLine(line)
+			if err != nil {
+				log.Log.Error(err)
+				continue
+			}
+
+			log.Log.Debugf("method: %v, URI: %v, sipVersion: %v", method, uri, sipVersion)
+
 		} else {
 			log.Log.Info("that line is not SIP request line")
 		}
@@ -100,8 +111,8 @@ func (p *packet) getLine() (string, error) {
 
 // get size of SIP message body
 func getMessageBodyLength(data []byte) int {
-	// the header and body of SIP message are separated by '/r/n'
-	// so use Index function of strings package, take data as params get '\r\n' start index
+	// the Header and body of SIP message are separated by '/r/n'
+	// so use Index function of strings package, take data as Params get '\r\n' start index
 	// again use start index subtract length of data , get the final result
 	s := string(data)
 	index := strings.Index(s, "\r\n\r\n")
@@ -129,18 +140,57 @@ func isRequest(line string) bool {
 }
 
 // parser the request line of SIP protocol,
-// return method and uri and sip version in request line
-func parserSipRequestLine(startLine string) (method RequestMethod, err error) {
+// return method and URI and sip version in request line
+func parseRequestLine(startLine string) (method requestMethod, uri URI, sipVersion string, err error) {
+	// SIP Request example :
+	// REGISTER sip:44010200492000000001@4401020049 SIP/2.0
 	parts := strings.Split(startLine, " ")
 	if len(parts) != 3 {
 		err = fmt.Errorf("SIP request line should have 2 spaces,but that line not have: [%s]", startLine)
 		return
 	}
-	method = RequestMethod(strings.ToUpper(parts[0]))
+	method = requestMethod(strings.ToUpper(parts[0]))
+	uri, err = parseURI(parts[1])
 
-	return "", nil
+	sipVersion = parts[2]
+	return
 }
 
-func readLine(reader io.Reader) {
+// parse request line of sip message, return URI object
+func parseURI(startLine string) (u URI, err error) {
 
+	index := strings.Index(startLine, ":")
+	if index == -1 {
+		err = fmt.Errorf("no contain ':' in %s", startLine)
+		return
+	}
+
+	switch strings.ToLower(startLine[:index]) {
+	case "sip", "sips":
+		u, err = parseSipURI(startLine)
+	default:
+		log.Log.Debugf("startLine[:index]: %s", startLine[:index])
+		err = fmt.Errorf("parse URI fail in %s", startLine)
+	}
+
+	return
+}
+
+func parseSipURI(startLine string) (u URI, err error) {
+
+	if strings.ToLower(startLine[:3]) != "sip" {
+		err = fmt.Errorf("invalid SIP URI protocol Name in '%s'", startLine)
+		return
+	}
+	startLine = startLine[4:]
+
+	index := strings.Index(startLine, "@")
+	if index == -1 {
+		err = fmt.Errorf("parse sip URI fail in %s", startLine)
+		return
+	}
+
+	u.FUser = String{Str: startLine[:index]}
+	u.FHost = String{Str: startLine[index+1:]}
+	return
 }

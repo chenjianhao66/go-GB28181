@@ -27,25 +27,24 @@ func (s *Server) Run() {
 func (s *Server) listenUdpServer() {
 	log.Log.Info("enter listenUdpServer function....")
 	// TODO 将地址放到配置文件中
-	addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5060")
+	addr, err := net.ResolveUDPAddr("udp", "192.168.1.223:5060")
 	if err != nil {
-		log.Log.Fatalf("resolve fail from %s: \n %s", "127.0.0.1:5060", err)
+		log.Log.Fatalf("resolve fail from %s: \n %s", "192.168.1.223:5060", err)
 	}
 
 	udpConn, err := net.ListenUDP("udp", addr)
 	if err != nil {
-		log.Log.Fatalf("listen upd message fail from %s : \n %s", "127.0.0.1:5060", err)
+		log.Log.Fatalf("listen upd message fail from %s : \n %s", "192.168.1.223:5060", err)
 	}
 	buf := make([]byte, BufferSizeMax)
 	for {
-		buf = buf[:]
 		num, udpAddr, err := udpConn.ReadFrom(buf)
 		if err != nil {
 			log.Log.Fatalf("read udp message from udpConn : \n%s", err)
 		}
 		log.Log.Debugf("receive from remote addr %s and %d size upd message from updConn", udpAddr, num)
 		log.Log.Debugf("receive the data : \n%s", string(buf[:num]))
-		s.p.in <- newPacket(buf[:num], udpAddr)
+		s.p.in <- newPacket(append([]byte{}, buf[:num]...), udpAddr)
 	}
 
 }
