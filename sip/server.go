@@ -45,6 +45,7 @@ func (s *Server) listenUdpServer() {
 		log.Log.Debugf("receive from remote addr %s and %d size upd message from updConn", udpAddr, num)
 		log.Log.Debugf("receive the data : \n%s", string(buf[:num]))
 		s.p.in <- newPacket(append([]byte{}, buf[:num]...), udpAddr)
+		buf = buf[:]
 	}
 
 }

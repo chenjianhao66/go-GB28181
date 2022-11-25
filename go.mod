@@ -3,6 +3,7 @@ module github.com/chenjianhao66/go-GB28181
 go 1.19
 
 require (
+	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/sirupsen/logrus v1.9.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 )
