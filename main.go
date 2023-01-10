@@ -1,16 +1,15 @@
 package main
 
 import (
-	"github.com/chenjianhao66/go-GB28181/sip"
+	"github.com/chenjianhao66/go-GB28181/internal/gb"
+	"github.com/chenjianhao66/go-GB28181/log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 func main() {
-
 	ListenAndServeWithSignal()
-
 }
 
 func ListenAndServeWithSignal() {
@@ -33,10 +32,11 @@ func ListenAndServeWithSignal() {
 }
 
 func ListenAndServe(closeChan <-chan struct{}) {
-	srv := sip.NewServer()
-	srv.Run()
-	go func() {
-		<-closeChan
-		_ = srv.Close()
-	}()
+	server := gb.NewServer()
+	if err := server.Listen(); err != nil {
+		panic(err)
+	}
+
+	<-closeChan
+	log.Log.Info("server close....")
 }
