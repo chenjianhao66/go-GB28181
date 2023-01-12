@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/chenjianhao66/go-GB28181/internal/gb"
+	"github.com/chenjianhao66/go-GB28181/internal/server"
 	"github.com/chenjianhao66/go-GB28181/log"
 	"os"
 	"os/signal"
@@ -32,11 +32,9 @@ func ListenAndServeWithSignal() {
 }
 
 func ListenAndServe(closeChan <-chan struct{}) {
-	server := gb.NewServer()
-	if err := server.Listen(); err != nil {
-		panic(err)
-	}
+	s := server.NewServer()
+	s.Run()
 
 	<-closeChan
-	log.Log.Info("server close....")
+	log.Log.Info("s close....")
 }

@@ -1,9 +1,11 @@
 package gb
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/ghettovoice/gosip"
 	l "github.com/ghettovoice/gosip/log"
 	"github.com/ghettovoice/gosip/sip"
+	"github.com/spf13/viper"
 )
 
 type Server struct {
@@ -13,11 +15,16 @@ type Server struct {
 }
 
 func NewServer() *Server {
+	sipConfig := &config.SIPOptions{}
+	if err := viper.UnmarshalKey("sip", sipConfig); err != nil {
+		panic("load sip config fail")
+	}
 	s := &Server{
-		host:    "0.0.0.0:5060",
-		network: "udp",
+		host: sipConfig.Ip + ":" + sipConfig.Port,
 		s: gosip.NewServer(
-			gosip.ServerConfig{},
+			gosip.ServerConfig{
+				UserAgent: sipConfig.UserAgent,
+			},
 			nil,
 			nil,
 			l.NewDefaultLogrusLogger(),
@@ -27,9 +34,12 @@ func NewServer() *Server {
 	return s
 }
 
-func (s *Server) Listen() error {
-	// TODO 引入配置文件动态变化
-	return s.s.Listen("udp", "0.0.0.0:5060", nil, nil)
+func (s *Server) ListenTCP() error {
+	return s.s.Listen("tcp", s.host, nil, nil)
+}
+
+func (s *Server) ListenUDP() error {
+	return s.s.Listen("udp", s.host, nil, nil)
 }
 
 func registerHandler(s *Server) {

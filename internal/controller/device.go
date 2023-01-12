@@ -19,5 +19,5 @@ func NewDeviceController(store store.Factory) *DeviceController {
 }
 
 func (d *DeviceController) List(c *gin.Context) {
-
+	_ = c.Params
 }

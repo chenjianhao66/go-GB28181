@@ -1,7 +1,7 @@
 package config
 
 type ServerOptions struct {
-	Port string `json:"port"`
+	Port string `json:"port" mapstructure:"port"`
 }
 
 func NewServerOptions() *ServerOptions {
