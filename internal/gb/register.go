@@ -2,8 +2,10 @@ package gb
 
 import (
 	"fmt"
-
+	"github.com/chenjianhao66/go-GB28181/internal/parser"
+	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/ghettovoice/gosip/sip"
+	"github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
 	"time"
@@ -12,7 +14,11 @@ import (
 const (
 	letterBytes      = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	DefaultAlgorithm = "MD5"
-	WWWHeader        = "WWW-Authenticate"
+)
+
+const (
+	WWWHeader     = "WWW-Authenticate"
+	ExpiresHeader = "Expires"
 )
 
 func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
@@ -20,11 +26,47 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 	// 判断是否存在 Authorization 字段
 	if headers := req.GetHeaders("Authorization"); len(headers) > 0 {
 		// 存在 Authorization 头部字段
-		authHeader := headers[0].(*sip.GenericHeader)
-		log.Infof("存在Authorization头部信息，直接注册成功：\n%s\n", authHeader)
+		//authHeader := headers[0].(*sip.GenericHeader)
+		fromRequest, ok := parser.ParserDeviceFromRequest(req)
+		if !ok {
+			return
+		}
+		log.Infof("fromRequest: %+v\n", fromRequest)
+		offlineFlag := false
+		device, ok := service.Device().GetByDeviceId(fromRequest.DeviceId)
 
+		if !ok {
+			logrus.Debugln("not found from device from database")
+			device = fromRequest
+		}
+
+		h := req.GetHeaders(ExpiresHeader)
+		if len(h) != 1 {
+			logrus.Debugln("not found expires header from request", req)
+			return
+		}
+		expires := h[0].(*sip.Expires)
+		// 如果v=0，则代表该请求是注销请求
+		if expires.Equals(new(sip.Expires)) {
+			logrus.Info("expires值为0,该请求是注销请求")
+			offlineFlag = true
+		}
+		device.Expires = expires.Value()
+		logrus.Debugf("设备信息:  %v\n", device)
 		// 发送OK信息
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, "ok", ""))
+
+		if offlineFlag {
+			// 注销请求
+			_ = service.Device().Offline(device)
+		} else {
+			// 注册请求
+			//device.RegisterTime = time.Now()
+			if err := service.Device().Online(device); err != nil {
+				logrus.Errorf("设备上线失败请检查,%s", err)
+			}
+		}
+		return
 	}
 
 	// 没有存在 Authorization 头部字段
