@@ -14,16 +14,17 @@ type Meta struct {
 // Device 设备表entity
 type Device struct {
 	Meta
-	DeviceId     string    `json:"deviceId"`
-	Name         string    `json:"name"`
-	Manufacturer string    `json:"manufacturer"`
-	Model        string    `json:"model"`
-	Firmware     string    `json:"firmware"`
-	Transport    string    `json:"transport"`
-	Offline      uint8     `json:"offline"`
-	Ip           string    `json:"ip"`
-	Port         int8      `json:"port"`
-	Expires      int8      `json:"expires"`
-	RegisterTime time.Time `json:"registerTime"`
-	Keepalive    time.Time `json:"keepalive"`
+	DeviceId     string    `json:"deviceId" gorm:"column:deviceId"`
+	Domain       string    `json:"domain" gorm:"column:domain"`
+	Name         string    `json:"name" gorm:"column:name"`
+	Manufacturer string    `json:"manufacturer" gorm:"column:manufacturer"`
+	Model        string    `json:"model" gorm:"column:model"`
+	Firmware     string    `json:"firmware" gorm:"column:firmware"`
+	Transport    string    `json:"transport" gorm:"column:transport"`
+	Offline      uint8     `json:"offline" gorm:"column:offline"`
+	Ip           string    `json:"ip" gorm:"column:ip"`
+	Port         string    `json:"port" gorm:"column:port"`
+	Expires      string    `json:"expires" gorm:"column:expires"`
+	RegisterTime time.Time `json:"registerTime" gorm:"column:register_time"`
+	Keepalive    time.Time `json:"keepalive" gorm:"column:keepalive"`
 }

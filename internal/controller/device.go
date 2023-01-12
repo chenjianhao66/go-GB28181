@@ -1,8 +1,9 @@
-package v1
+package controller
 
 import (
-	srv "github.com/chenjianhao66/go-GB28181/internal/service/v1"
+	srv "github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/chenjianhao66/go-GB28181/internal/store"
+	"github.com/gin-gonic/gin"
 )
 
 // DeviceController 设备控制器
@@ -15,4 +16,8 @@ func NewDeviceController(store store.Factory) *DeviceController {
 	return &DeviceController{
 		srv: srv.NewService(store),
 	}
+}
+
+func (d *DeviceController) List(c *gin.Context) {
+
 }
