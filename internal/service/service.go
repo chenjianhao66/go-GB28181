@@ -1,9 +1,9 @@
-package v1
+package service
 
 import "github.com/chenjianhao66/go-GB28181/internal/store"
 
 type Service interface {
-	Devices() DeviceSrv
+	Devices() IDevice
 }
 
 type service struct {
@@ -16,6 +16,15 @@ func NewService(factory store.Factory) Service {
 }
 
 // Devices 返回设备服务实现接口
-func (s *service) Devices() DeviceSrv {
-	return newDeviceSrv(s.store)
+func (s *service) Devices() IDevice {
+	return Device()
+}
+
+// base service interface
+type baseService[T any] interface {
+	Save(entity T) error
+	DeleteById(id uint) error
+	Update(entity T) error
+	List() ([]T, error)
+	GetById(id uint) (T, error)
 }
