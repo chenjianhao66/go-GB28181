@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func ParserDeviceFromRequest(req sip.Request) (model.Device, bool) {
+func DeviceFromRequest(req sip.Request) (model.Device, bool) {
 	d := model.Device{}
 
 	from, ok := req.From()

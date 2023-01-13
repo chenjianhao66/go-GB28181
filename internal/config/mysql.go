@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/spf13/viper"
 	"time"
 )
 
@@ -18,7 +19,7 @@ type MySQLOptions struct {
 }
 
 func NewMySQLOptions() *MySQLOptions {
-	return &MySQLOptions{
+	m := &MySQLOptions{
 		Host:                  "127.0.0.1",
 		Port:                  "3306",
 		MaxIdleConnections:    100,
@@ -26,4 +27,6 @@ func NewMySQLOptions() *MySQLOptions {
 		MaxConnectionLifeTime: time.Duration(10) * time.Second,
 		LogLevel:              1,
 	}
+	_ = viper.UnmarshalKey("mysql", m)
+	return m
 }

@@ -1,0 +1,46 @@
+package gb
+
+import (
+	"encoding/xml"
+	"github.com/chenjianhao66/go-GB28181/internal/model"
+	"github.com/ghettovoice/gosip/sip"
+	"net/http"
+)
+
+const (
+	resultOK = "OK"
+)
+
+type deviceInfo struct {
+	CmdType      string `xml:"CmdType"`
+	SN           string `xml:"SN"`
+	DeviceID     string `xml:"DeviceID"`
+	Result       string `xml:"Result"`
+	DeviceName   string `xml:"DeviceName"`
+	Manufacturer string `xml:"Manufacturer"`
+	Model        string `xml:"Model"`
+	Firmware     string `xml:"Firmware"`
+}
+
+func deviceInfoHandler(req sip.Request, tx sip.ServerTransaction) {
+	d := &deviceInfo{}
+	if err := xml.Unmarshal([]byte(req.Body()), d); err != nil {
+		log.Error("解析deviceInfo响应包出错", err)
+		return
+	}
+
+	if d.Result != resultOK {
+		log.Errorf("查询设备信息请求结果为%s，请检查", d.Result)
+		return
+	}
+
+	dev := model.Device{
+		Name:         d.DeviceName,
+		Manufacturer: d.Manufacturer,
+		Model:        d.Model,
+		Firmware:     d.Firmware,
+	}
+
+	log.Info("........更新数据库....", dev)
+	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
+}
