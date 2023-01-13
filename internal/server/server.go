@@ -12,10 +12,7 @@ type Server struct {
 	apiServer *apiServer
 }
 
-const defaultConfigName = "application"
-
 func NewServer() *Server {
-	loadConfig()
 	return &Server{
 		sip:       gb.NewServer(),
 		apiServer: newApiServer(),
@@ -44,14 +41,4 @@ func (s *Server) Run() {
 		panic(err)
 	}
 
-}
-
-func loadConfig() {
-	viper.AddConfigPath("config/")
-	viper.SetConfigName(defaultConfigName)
-	viper.SetConfigType("yaml")
-	viper.AutomaticEnv()
-	if err := viper.ReadInConfig(); err != nil {
-		panic("load config fail,please check your config file whether in config/ in the directory")
-	}
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/ghettovoice/gosip"
 	l "github.com/ghettovoice/gosip/log"
 	"github.com/ghettovoice/gosip/sip"
-	"github.com/spf13/viper"
+	"sync"
 )
 
 type Server struct {
@@ -14,22 +14,25 @@ type Server struct {
 	s       gosip.Server
 }
 
+var (
+	s          *Server
+	serverOnce sync.Once
+)
+
 func NewServer() *Server {
-	sipConfig := &config.SIPOptions{}
-	if err := viper.UnmarshalKey("sip", sipConfig); err != nil {
-		panic("load sip config fail")
-	}
-	s := &Server{
-		host: sipConfig.Ip + ":" + sipConfig.Port,
-		s: gosip.NewServer(
-			gosip.ServerConfig{
-				UserAgent: sipConfig.UserAgent,
-			},
-			nil,
-			nil,
-			l.NewDefaultLogrusLogger(),
-		),
-	}
+	serverOnce.Do(func() {
+		s = &Server{
+			host: config.SIPAddress() + ":" + config.SIPPort(),
+			s: gosip.NewServer(
+				gosip.ServerConfig{
+					UserAgent: config.SIPUserAgent(),
+				},
+				nil,
+				nil,
+				l.NewDefaultLogrusLogger(),
+			),
+		}
+	})
 	registerHandler(s)
 	return s
 }
@@ -45,4 +48,8 @@ func (s *Server) ListenUDP() error {
 func registerHandler(s *Server) {
 	_ = s.s.OnRequest(sip.REGISTER, RegisterHandler)
 	_ = s.s.OnRequest(sip.MESSAGE, MessageHandler)
+}
+
+func send(message sip.Message) error {
+	return s.s.Send(message)
 }
