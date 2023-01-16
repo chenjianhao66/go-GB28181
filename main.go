@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/server"
-	"github.com/chenjianhao66/go-GB28181/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -36,5 +36,5 @@ func ListenAndServe(closeChan <-chan struct{}) {
 	s.Run()
 
 	<-closeChan
-	log.Log.Info("s close....")
+	log.Info("close....")
 }
