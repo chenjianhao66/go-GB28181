@@ -3,7 +3,7 @@ server:
     port: 18080
 
 mysql:
-    host: 127.0.0.1:3306
+    host: 106.12.119.240:3306
     port: 3306
     username: root
     database: gb
@@ -33,5 +33,17 @@ sip:
     user-agent: gb
 
 # [可选] 日志配置, 一般不需要改
-logging:
-    config: classpath:logback-spring-local.xml
+log:
+    # 日志级别
+    level: debug
+    # 日志路径
+    path: ./log
+    # 日志文件名称
+    file: gp-gb28181.log
+    # 日志文件在轮换之前的最大大小，M为单位
+    maxSize: 1
+    # 是要保留的最大旧日志文件数。默认是保留所有旧的日志文件
+    maxBackups: 30
+    # 是根据文件名中编码的时间戳保留旧日志文件的最大天数。
+    maxAge: 30
+
