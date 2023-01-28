@@ -3,13 +3,14 @@ package mysql
 import (
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/store"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
+	log2 "log"
 	"os"
 	"sync"
 	"time"
@@ -26,7 +27,7 @@ var (
 
 // GetMySQLFactory get mysql database factory
 func GetMySQLFactory() (store.Factory, error) {
-	logrus.Debugln("init mysql.....")
+	log.Debug("init mysql.....")
 	var (
 		err          error
 		dbIns        *gorm.DB
@@ -87,7 +88,7 @@ func (d *datastore) Devices() store.DeviceStore {
 // 自定义gorm配置
 func getConfig() *gorm.Config {
 	c := &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true}
-	_default := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+	_default := logger.New(log2.New(os.Stdout, "\r\n", log2.LstdFlags), logger.Config{
 		SlowThreshold: 200 * time.Millisecond, // 打印慢SQL
 		LogLevel:      logger.Info,            // 打印级别为info
 		Colorful:      true,                   // 是否为彩色输出到控制台

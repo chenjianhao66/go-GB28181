@@ -1,10 +1,10 @@
 package service
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/store"
 	"github.com/chenjianhao66/go-GB28181/internal/store/mysql"
-	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
 )
@@ -62,13 +62,13 @@ func (d *deviceService) GetById(id uint) (model.Device, error) {
 func (d *deviceService) Online(device model.Device) error {
 	var err error
 	if device.RegisterTime.Equal(time.Time{}) {
-		logrus.Infof("{%s}设备第一次注册，发送设备查询请求", device.DeviceId)
+		log.Infof("{%s}设备第一次注册，发送设备查询请求", device.DeviceId)
 		device.RegisterTime = time.Now()
 		device.Keepalive = time.Now()
 		device.Offline = 1
 		err = d.Save(device)
 	} else {
-		logrus.Infof("{%s}设备离线状态下重新上线，", device.DeviceId)
+		log.Infof("{%s}设备离线状态下重新上线，", device.DeviceId)
 		device.Offline = 1
 		err = d.Update(device)
 	}
@@ -77,11 +77,11 @@ func (d *deviceService) Online(device model.Device) error {
 }
 
 func (d *deviceService) Offline(device model.Device) error {
-	logrus.Infof("{%s}设备离线,设备信息：{%#v}", device.DeviceId, device)
+	log.Infof("{%s}设备离线,设备信息：{%#v}", device.DeviceId, device)
 	device.Offline = 0
 	err := d.Update(device)
 	if err != nil {
-		logrus.Errorf("设备离线发生错误，请检查。%s", err)
+		log.Errorf("设备离线发生错误，请检查。%s", err)
 		return err
 	}
 	return nil
