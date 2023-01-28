@@ -16,7 +16,7 @@ const (
 )
 
 func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Infof("收到来自%s 的请求: \n%s\n", req.Source(), req.String())
+	log.Debugf("收到来自%s 的请求: \n%s\n", req.Source(), req.String())
 	// 判断是否存在 Authorization 字段
 	if headers := req.GetHeaders("Authorization"); len(headers) > 0 {
 		// 存在 Authorization 头部字段
@@ -25,7 +25,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		if !ok {
 			return
 		}
-		log.Infof("fromRequest: %+v\n", fromRequest)
+		log.Debugf("fromRequest: %+v\n", fromRequest)
 		offlineFlag := false
 		device, ok := service.Device().GetByDeviceId(fromRequest.DeviceId)
 
@@ -42,7 +42,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		expires := h[0].(*sip.Expires)
 		// 如果v=0，则代表该请求是注销请求
 		if expires.Equals(new(sip.Expires)) {
-			log.Info("expires值为0,该请求是注销请求")
+			log.Debug("expires值为0,该请求是注销请求")
 			offlineFlag = true
 		}
 		device.Expires = expires.Value()
@@ -76,6 +76,6 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		),
 	}
 	response.AppendHeader(wwwHeader)
-	log.Infof("没有Authorization头部信息，生成WWW-Authenticate头部返回：\n%s\n", response)
+	log.Debugf("没有Authorization头部信息，生成WWW-Authenticate头部返回：\n%s\n", response)
 	_ = tx.Respond(response)
 }

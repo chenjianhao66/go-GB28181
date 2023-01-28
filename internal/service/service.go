@@ -19,12 +19,3 @@ func NewService(factory store.Factory) Service {
 func (s *service) Devices() IDevice {
 	return Device()
 }
-
-// base service interface
-type baseService[T any] interface {
-	Save(entity T) error
-	DeleteById(id uint) error
-	Update(entity T) error
-	List() ([]T, error)
-	GetById(id uint) (T, error)
-}
