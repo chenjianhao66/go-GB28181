@@ -6,6 +6,7 @@ type Options struct {
 	ServerOptions *ServerOptions `json:"server" mapstructure:"server"`
 	MySQLOptions  *MySQLOptions  `json:"mysql" mapstructure:"mysql"`
 	SIPOptions    *SIPOptions    `json:"sip" mapstructure:"sip"`
+	LogOptions    *LogOptions    `json:"log" mapstructure:"log"`
 }
 
 const defaultConfigName = "application"
@@ -20,6 +21,7 @@ func initOptions() *Options {
 		ServerOptions: NewServerOptions(),
 		MySQLOptions:  NewMySQLOptions(),
 		SIPOptions:    newSIPOptions(),
+		LogOptions:    newLogOptions(),
 	}
 }
 

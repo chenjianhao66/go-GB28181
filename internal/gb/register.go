@@ -2,10 +2,10 @@ package gb
 
 import (
 	"fmt"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/parser"
 	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/ghettovoice/gosip/sip"
-	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -30,23 +30,23 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		device, ok := service.Device().GetByDeviceId(fromRequest.DeviceId)
 
 		if !ok {
-			logrus.Debugln("not found from device from database")
+			log.Debug("not found from device from database")
 			device = fromRequest
 		}
 
 		h := req.GetHeaders(ExpiresHeader)
 		if len(h) != 1 {
-			logrus.Debugln("not found expires header from request", req)
+			log.Debug("not found expires header from request", req)
 			return
 		}
 		expires := h[0].(*sip.Expires)
 		// 如果v=0，则代表该请求是注销请求
 		if expires.Equals(new(sip.Expires)) {
-			logrus.Info("expires值为0,该请求是注销请求")
+			log.Info("expires值为0,该请求是注销请求")
 			offlineFlag = true
 		}
 		device.Expires = expires.Value()
-		logrus.Debugf("设备信息:  %v\n", device)
+		log.Debugf("设备信息:  %v\n", device)
 		// 发送OK信息
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, "ok", ""))
 
@@ -57,7 +57,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 			// 注册请求
 			//device.RegisterTime = time.Now()
 			if err := service.Device().Online(device); err != nil {
-				logrus.Errorf("设备上线失败请检查,%s", err)
+				log.Errorf("设备上线失败请检查,%s", err)
 			}
 			sendDeviceInfoQuery(device)
 		}

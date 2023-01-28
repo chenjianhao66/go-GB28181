@@ -2,6 +2,7 @@ package gb
 
 import (
 	"encoding/xml"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/ghettovoice/gosip/sip"
 	"net/http"
@@ -41,6 +42,6 @@ func deviceInfoHandler(req sip.Request, tx sip.ServerTransaction) {
 		Firmware:     d.Firmware,
 	}
 
-	log.Info("........更新数据库....", dev)
+	log.Debug("........更新数据库....", dev)
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
 }

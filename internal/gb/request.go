@@ -3,6 +3,7 @@ package gb
 import (
 	"github.com/beevik/etree"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/ghettovoice/gosip/sip"
 	"math/rand"
