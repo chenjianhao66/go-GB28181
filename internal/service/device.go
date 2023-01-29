@@ -10,7 +10,12 @@ import (
 )
 
 type IDevice interface {
-	baseService[model.Device]
+	Save(entity model.Device) error
+	DeleteById(id uint) error
+	Update(entity model.Device) error
+	UpdateDeviceInfo(entity model.Device) error
+	List() ([]model.Device, error)
+	GetById(id uint) (model.Device, error)
 	Online(device model.Device) error
 	Offline(device model.Device) error
 	GetByDeviceId(deviceId string) (model.Device, bool)
@@ -62,22 +67,21 @@ func (d *deviceService) GetById(id uint) (model.Device, error) {
 func (d *deviceService) Online(device model.Device) error {
 	var err error
 	if device.RegisterTime.Equal(time.Time{}) {
-		log.Infof("{%s}设备第一次注册，发送设备查询请求", device.DeviceId)
+		log.Infof("%s设备第一次注册，发送设备查询请求", device.DeviceId)
 		device.RegisterTime = time.Now()
 		device.Keepalive = time.Now()
 		device.Offline = 1
 		err = d.Save(device)
 	} else {
-		log.Infof("{%s}设备离线状态下重新上线，", device.DeviceId)
+		log.Infof("%s设备离线状态下重新上线，", device.DeviceId)
 		device.Offline = 1
 		err = d.Update(device)
 	}
-	// TODO 发起查询设备信息
 	return err
 }
 
 func (d *deviceService) Offline(device model.Device) error {
-	log.Infof("{%s}设备离线,设备信息：{%#v}", device.DeviceId, device)
+	log.Infof("%s设备离线,设备信息：%#v", device.DeviceId, device)
 	device.Offline = 0
 	err := d.Update(device)
 	if err != nil {
@@ -93,4 +97,8 @@ func (d *deviceService) GetByDeviceId(deviceId string) (model.Device, bool) {
 
 func (d *deviceService) Keepalive(id uint) error {
 	return d.store.Devices().Keepalive(id)
+}
+
+func (d *deviceService) UpdateDeviceInfo(entity model.Device) error {
+	return d.store.Devices().UpdateDeviceInfo(entity)
 }

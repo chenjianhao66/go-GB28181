@@ -20,14 +20,14 @@ var (
 )
 
 func MessageHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Infof("处理MESSAGE消息....\n%s", req)
+	log.Debug("处理MESSAGE消息....\n%s", req)
 	if l, ok := req.ContentLength(); !ok || l.Equals(0) {
 		log.Debug("该MESSAGE消息的消息体长度为0，返回OK")
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
 	}
 	body := req.Body()
 	cmdType, err := parser.GetCmdTypeFromXML(body)
-	log.Infof("解析出的命令：%s", cmdType)
+	log.Debug("解析出的命令：%s", cmdType)
 	if err != nil {
 		return
 	}

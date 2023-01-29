@@ -55,3 +55,12 @@ func (d *devices) Keepalive(id uint) error {
 	dev.ID = id
 	return d.db.Model(dev).Update("keepalive", time.Now()).Error
 }
+
+func (d *devices) UpdateDeviceInfo(entity model.Device) error {
+	return d.db.Model(&model.Device{}).Where("deviceId = ?", entity.DeviceId).Updates(model.Device{
+		Name:         entity.Name,
+		Manufacturer: entity.Manufacturer,
+		Model:        entity.Model,
+		Firmware:     entity.Firmware,
+	}).Error
+}

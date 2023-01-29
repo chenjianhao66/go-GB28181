@@ -11,3 +11,7 @@ func NewServerOptions() *ServerOptions {
 	_ = viper.UnmarshalKey("server", s)
 	return s
 }
+
+func ServerPort() string {
+	return o.ServerOptions.Port
+}
