@@ -1,32 +1,40 @@
 package server
 
 import (
-	"fmt"
+	"context"
 	"github.com/chenjianhao66/go-GB28181/internal/gb"
-	"github.com/spf13/viper"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"golang.org/x/sync/errgroup"
+	"net/http"
 )
 
 type Server struct {
 	sip       *gb.Server
 	apiServer *apiServer
+	ctx       context.Context
+	cancel    context.CancelFunc
 }
 
 func NewServer() *Server {
+	ctx, cancelFunc := context.WithCancel(context.Background())
 	return &Server{
 		sip:       gb.NewServer(),
 		apiServer: newApiServer(),
+		ctx:       ctx,
+		cancel:    cancelFunc,
 	}
 }
 
 func (s *Server) Run() {
 	s.apiServer.initRoute()
-	var eg errgroup.Group
+	eg, _ := errgroup.WithContext(s.ctx)
 
 	eg.Go(func() error {
-		sport := viper.Get("server.port")
-		fmt.Println(sport)
-		return s.apiServer.engine.Run("127.0.0.1:18080")
+		log.Infof("bind: %s,start listening...", s.apiServer.h.Addr)
+		if err := s.apiServer.h.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			panic(err)
+		}
+		return nil
 	})
 
 	eg.Go(func() error {
@@ -41,4 +49,12 @@ func (s *Server) Run() {
 		panic(err)
 	}
 
+}
+
+func (s *Server) Close() error {
+	_ = s.sip.Close()
+	_ = s.apiServer.Close()
+	cancel := s.cancel
+	cancel()
+	return nil
 }

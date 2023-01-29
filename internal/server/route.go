@@ -1,13 +1,19 @@
 package server
 
 import (
+	"context"
+	"fmt"
+	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/controller"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/store/mysql"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 type apiServer struct {
+	h      *http.Server
 	engine *gin.Engine
 }
 
@@ -19,6 +25,21 @@ func newApiServer() *apiServer {
 
 func (a *apiServer) initRoute() {
 	installController(a.engine)
+	a.h = &http.Server{
+		Handler: a.engine,
+		Addr:    fmt.Sprintf(":%s", config.ServerPort()),
+	}
+}
+
+func (a *apiServer) Close() error {
+	ctx := context.Background()
+	withTimeout, _ := context.WithTimeout(ctx, 1*time.Second)
+	if err := a.h.Shutdown(withTimeout); err != nil {
+		log.Info("close apiserver fail")
+		panic(err)
+	}
+	log.Info("apiserver shutdown...")
+	return nil
 }
 
 func installController(g *gin.Engine) *gin.Engine {

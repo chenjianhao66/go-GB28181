@@ -2,6 +2,7 @@ package gb
 
 import (
 	"github.com/chenjianhao66/go-GB28181/internal/config"
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/ghettovoice/gosip"
 	l "github.com/ghettovoice/gosip/log"
 	"github.com/ghettovoice/gosip/sip"
@@ -43,6 +44,12 @@ func (s *Server) ListenTCP() error {
 
 func (s *Server) ListenUDP() error {
 	return s.s.Listen("udp", s.host, nil, nil)
+}
+
+func (s *Server) Close() error {
+	log.Info("gb sip server shutdown...")
+	s.s.Shutdown()
+	return nil
 }
 
 func registerHandler(s *Server) {
