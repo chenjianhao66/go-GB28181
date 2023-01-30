@@ -20,20 +20,21 @@ var (
 )
 
 func MessageHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Debug("处理MESSAGE消息....\n%s", req)
+	log.Info("处理MESSAGE消息...")
+	log.Debugf("MESSAGE消息体：\n%s", req)
 	if l, ok := req.ContentLength(); !ok || l.Equals(0) {
 		log.Debug("该MESSAGE消息的消息体长度为0，返回OK")
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
 	}
 	body := req.Body()
 	cmdType, err := parser.GetCmdTypeFromXML(body)
-	log.Debug("解析出的命令：%s", cmdType)
+	log.Info("解析出的命令：", cmdType)
 	if err != nil {
 		return
 	}
 	handler, ok := messageHandler[cmdType]
 	if !ok {
-		log.Infof("不支持的Message方法实现")
+		log.Warn("不支持的Message方法实现")
 		return
 	}
 	handler(req, tx)

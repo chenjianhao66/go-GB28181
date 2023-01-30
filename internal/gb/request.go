@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+type (
+	Provider struct{}
+	Sender   struct{}
+)
+
 const (
 	branch = "z9hG4bK"
 
@@ -18,19 +23,21 @@ const (
 	contentTypeXML = "Application/MANSCDP+xml"
 )
 
-func sendDeviceInfoQuery(d model.Device) {
-	document := etree.NewDocument()
-	document.CreateProcInst("xml", "version=\"1.0\" encoding=\"GB2312\"")
-	query := document.CreateElement("Query")
-	query.CreateElement("CmdType").CreateText("DeviceInfo")
-	query.CreateElement("SN").CreateText("701385")
-	query.CreateElement("DeviceID").CreateText("44010200491118000001")
-	document.Indent(2)
-	xml, _ := document.WriteToString()
-	createMessageRequest(d, xml)
+var (
+	RequestProvider Provider
+	SipSender       Sender
+)
+
+// 发送sip协议请求
+func (s Sender) transmitRequest(req sip.Request) {
+	log.Info("发送SIP Request消息，Method为: ", req.Method())
+	if err := send(req); err != nil {
+		panic(err)
+	}
 }
 
-func createMessageRequest(d model.Device, xml string) {
+// CreateMessageRequest 创建Message类型请求
+func (p Provider) CreateMessageRequest(d model.Device, body string) sip.Request {
 	requestBuilder := sip.NewRequestBuilder()
 	requestBuilder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
 
@@ -43,12 +50,23 @@ func createMessageRequest(d model.Device, xml string) {
 	requestBuilder.SetMethod(sip.MESSAGE)
 	userAgent := sip.UserAgentHeader("go-gb")
 	requestBuilder.SetUserAgent(&userAgent)
-	requestBuilder.SetBody(xml)
+	requestBuilder.SetBody(body)
 	req, _ := requestBuilder.Build()
-	log.Info("\n", req)
-	if err := send(req); err != nil {
-		panic(err)
-	}
+	return req
+}
+
+// 查询设备信息
+func deviceInfoQuery(d model.Device) {
+	document := etree.NewDocument()
+	document.CreateProcInst("xml", "version=\"1.0\" encoding=\"GB2312\"")
+	query := document.CreateElement("Query")
+	query.CreateElement("CmdType").CreateText("DeviceInfo")
+	query.CreateElement("SN").CreateText("701385")
+	query.CreateElement("DeviceID").CreateText(d.DeviceId)
+	document.Indent(2)
+	xml, _ := document.WriteToString()
+	request := RequestProvider.CreateMessageRequest(d, xml)
+	SipSender.transmitRequest(request)
 }
 
 // 从自身SIP服务获取地址返回FromHeader

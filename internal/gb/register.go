@@ -16,7 +16,7 @@ const (
 )
 
 func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Debugf("收到来自%s 的请求: \n%s\n", req.Source(), req.String())
+	log.Infof("收到来自%s的请求\n", req.Source())
 	// 判断是否存在 Authorization 字段
 	if headers := req.GetHeaders("Authorization"); len(headers) > 0 {
 		// 存在 Authorization 头部字段
@@ -25,7 +25,6 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		if !ok {
 			return
 		}
-		log.Debugf("fromRequest: %+v\n", fromRequest)
 		offlineFlag := false
 		device, ok := service.Device().GetByDeviceId(fromRequest.DeviceId)
 
@@ -36,7 +35,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 
 		h := req.GetHeaders(ExpiresHeader)
 		if len(h) != 1 {
-			log.Debug("not found expires header from request", req)
+			log.Error("not found expires header from request", req)
 			return
 		}
 		expires := h[0].(*sip.Expires)
@@ -46,7 +45,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 			offlineFlag = true
 		}
 		device.Expires = expires.Value()
-		log.Debugf("设备信息:  %v\n", device)
+		log.Infof("设备信息:  %+v\n", device)
 		// 发送OK信息
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, "ok", ""))
 
@@ -55,11 +54,10 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 			_ = service.Device().Offline(device)
 		} else {
 			// 注册请求
-			//device.RegisterTime = time.Now()
 			if err := service.Device().Online(device); err != nil {
 				log.Errorf("设备上线失败请检查,%s", err)
 			}
-			sendDeviceInfoQuery(device)
+			deviceInfoQuery(device)
 		}
 		return
 	}
@@ -76,6 +74,6 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		),
 	}
 	response.AppendHeader(wwwHeader)
-	log.Debugf("没有Authorization头部信息，生成WWW-Authenticate头部返回：\n%s\n", response)
+	log.Debug("没有Authorization头部信息，生成WWW-Authenticate头部返回：")
 	_ = tx.Respond(response)
 }

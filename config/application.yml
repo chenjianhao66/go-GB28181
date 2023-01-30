@@ -35,7 +35,7 @@ sip:
 # [可选] 日志配置, 一般不需要改
 log:
     # 日志级别
-    level: debug
+    level: info
     # 日志路径
     path: ./log
     # 日志文件名称

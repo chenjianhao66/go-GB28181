@@ -81,7 +81,7 @@ func (d *deviceService) Online(device model.Device) error {
 }
 
 func (d *deviceService) Offline(device model.Device) error {
-	log.Infof("%s设备离线,设备信息：%#v", device.DeviceId, device)
+	log.Infof("%s设备离线,设备信息：%+v", device.DeviceId, device)
 	device.Offline = 0
 	err := d.Update(device)
 	if err != nil {
