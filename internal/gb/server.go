@@ -39,11 +39,11 @@ func NewServer() *Server {
 }
 
 func (s *Server) ListenTCP() error {
-	return s.s.Listen("tcp", s.host, nil, nil)
+	return s.s.Listen("tcp", s.host, nil)
 }
 
 func (s *Server) ListenUDP() error {
-	return s.s.Listen("udp", s.host, nil, nil)
+	return s.s.Listen("udp", s.host, nil)
 }
 
 func (s *Server) Close() error {
