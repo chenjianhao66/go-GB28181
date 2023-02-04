@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
-	"github.com/chenjianhao66/go-GB28181/internal/store"
-	"github.com/chenjianhao66/go-GB28181/internal/store/mysql"
+	"github.com/chenjianhao66/go-GB28181/internal/storage"
+	"github.com/chenjianhao66/go-GB28181/internal/storage/mysql"
 	"sync"
 	"time"
 )
@@ -23,7 +23,7 @@ type IDevice interface {
 }
 
 type deviceService struct {
-	store store.Factory
+	store storage.Factory
 }
 
 var (

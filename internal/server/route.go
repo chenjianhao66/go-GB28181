@@ -6,7 +6,7 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/controller"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
-	"github.com/chenjianhao66/go-GB28181/internal/store/mysql"
+	"github.com/chenjianhao66/go-GB28181/internal/storage/mysql"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
