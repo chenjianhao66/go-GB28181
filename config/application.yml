@@ -3,7 +3,7 @@ server:
     port: 18080
 
 mysql:
-    host: 106.12.119.240
+    host: 127.0.0.1
     port: 3306
     username: root
     database: gb
@@ -12,7 +12,7 @@ mysql:
     log-level: 1
 
 redis:
-    host: 106.12.119.240
+    host: 127.0.0.1
     port: 6379
     database: 0
     username: root
