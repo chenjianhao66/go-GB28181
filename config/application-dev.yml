@@ -12,6 +12,12 @@ mysql:
     max-open-connections: 100
     log-level: 1
 
+redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    username: root
+
 # 作为 28181 服务器的配置
 sip:
     # [必须修改] 本机的IP
