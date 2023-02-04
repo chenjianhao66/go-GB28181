@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
-	"github.com/chenjianhao66/go-GB28181/internal/store"
-	"github.com/sirupsen/logrus"
+	"github.com/chenjianhao66/go-GB28181/internal/storage"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -21,13 +20,12 @@ type datastore struct {
 }
 
 var (
-	mysqlFactory store.Factory
+	mysqlFactory storage.Factory
 	once         sync.Once
 )
 
 // GetMySQLFactory get mysql database factory
-func GetMySQLFactory() (store.Factory, error) {
-	log.Debug("init mysql.....")
+func GetMySQLFactory() (storage.Factory, error) {
 	var (
 		err          error
 		dbIns        *gorm.DB
@@ -35,15 +33,15 @@ func GetMySQLFactory() (store.Factory, error) {
 	)
 	once.Do(func() {
 		if err = viper.UnmarshalKey("mysql", &mySQLOptions); err != nil {
-			logrus.Error(err)
-			panic("load mysql config file fail")
+			log.Error("load mysql config file fail")
+			panic(err)
 		}
 		dbIns, err = New(&mySQLOptions)
 		mysqlFactory = &datastore{dbIns}
 	})
 
 	if mysqlFactory == nil || err != nil {
-		return nil, fmt.Errorf("failed to get mysql store fatory, mysqlFactory: %+v, error: %w", mysqlFactory, err)
+		return nil, fmt.Errorf("failed to get mysql storage fatory, mysqlFactory: %+v, error: %w", mysqlFactory, err)
 	}
 
 	return mysqlFactory, nil
@@ -54,7 +52,7 @@ func New(opts *config.MySQLOptions) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(`%s:%s@tcp(%s)/%s?charset=utf8&parseTime=%t&loc=%s`,
 		opts.Username,
 		opts.Password,
-		opts.Host,
+		fmt.Sprintf("%s:%s", opts.Host, opts.Port),
 		opts.Database,
 		true,
 		"Local")
@@ -81,7 +79,7 @@ func New(opts *config.MySQLOptions) (*gorm.DB, error) {
 	return db, nil
 }
 
-func (d *datastore) Devices() store.DeviceStore {
+func (d *datastore) Devices() storage.DeviceStore {
 	return newDevices(d)
 }
 

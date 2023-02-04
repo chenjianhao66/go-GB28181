@@ -1,4 +1,4 @@
-package store
+package storage
 
 import "github.com/chenjianhao66/go-GB28181/internal/model"
 
