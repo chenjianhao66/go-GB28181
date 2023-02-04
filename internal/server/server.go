@@ -27,7 +27,8 @@ func NewServer() *Server {
 
 func (s *Server) Run() {
 	s.apiServer.initRoute()
-	eg, _ := errgroup.WithContext(s.ctx)
+	eg, ctx := errgroup.WithContext(s.ctx)
+	defer ctx.Done()
 
 	eg.Go(func() error {
 		log.Infof("bind: %s,start listening...", s.apiServer.h.Addr)
