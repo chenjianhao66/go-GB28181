@@ -5,7 +5,6 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,7 +26,6 @@ var (
 
 // GetMySQLFactory get mysql database factory
 func GetMySQLFactory() (storage.Factory, error) {
-	log.Debug("init mysql.....")
 	var (
 		err          error
 		dbIns        *gorm.DB
@@ -35,8 +33,8 @@ func GetMySQLFactory() (storage.Factory, error) {
 	)
 	once.Do(func() {
 		if err = viper.UnmarshalKey("mysql", &mySQLOptions); err != nil {
-			logrus.Error(err)
-			panic("load mysql config file fail")
+			log.Error("load mysql config file fail")
+			panic(err)
 		}
 		dbIns, err = New(&mySQLOptions)
 		mysqlFactory = &datastore{dbIns}
@@ -54,7 +52,7 @@ func New(opts *config.MySQLOptions) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(`%s:%s@tcp(%s)/%s?charset=utf8&parseTime=%t&loc=%s`,
 		opts.Username,
 		opts.Password,
-		opts.Host,
+		fmt.Sprintf("%s:%s", opts.Host, opts.Port),
 		opts.Database,
 		true,
 		"Local")
