@@ -3,13 +3,35 @@ server:
     port: 18080
 
 mysql:
-    host: 106.12.119.240:3306
+    host: 106.12.119.240
     port: 3306
     username: root
     database: gb
     max-idle-connections: 100
     max-open-connections: 100
     log-level: 1
+
+redis:
+    host: 106.12.119.240
+    port: 6379
+    database: 0
+    username: root
+    # password: 123456
+
+    # 最大重连次数，默认值3，-1则为放弃重试
+    max-retries: 3
+
+    # 默认是 runtime.GOMAXPROCS * 10
+    pool-size: 50
+
+    # 最小空闲连接数，默认值50
+    min-idle-connections: 50
+
+    # 最大空闲连接数，默认值100
+    max-idle-connections: 100
+
+    # 可以重复使用连接的最长时间，0代表不关闭空闲连接，默认值0
+    conn-max-life-time: 0
 
 # 作为 28181 服务器的配置
 sip:

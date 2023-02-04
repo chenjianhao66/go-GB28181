@@ -1,10 +1,13 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 type Options struct {
 	ServerOptions *ServerOptions `json:"server" mapstructure:"server"`
 	MySQLOptions  *MySQLOptions  `json:"mysql" mapstructure:"mysql"`
+	RedisOptions  *RedisOptions  `json:"redis" mapstructure:"redis"`
 	SIPOptions    *SIPOptions    `json:"sip" mapstructure:"sip"`
 	LogOptions    *LogOptions    `json:"log" mapstructure:"log"`
 }
@@ -20,6 +23,7 @@ func initOptions() *Options {
 	return &Options{
 		ServerOptions: NewServerOptions(),
 		MySQLOptions:  NewMySQLOptions(),
+		RedisOptions:  newRedisOptions(),
 		SIPOptions:    newSIPOptions(),
 		LogOptions:    newLogOptions(),
 	}
@@ -28,7 +32,7 @@ func initOptions() *Options {
 func loadConfig() {
 	viper.AddConfigPath("config/")
 	viper.SetConfigName(defaultConfigName)
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("yml")
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		panic("load config fail,please check your config file whether in config/ in the directory")
