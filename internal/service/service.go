@@ -1,17 +1,17 @@
 package service
 
-import "github.com/chenjianhao66/go-GB28181/internal/store"
+import "github.com/chenjianhao66/go-GB28181/internal/storage"
 
 type Service interface {
 	Devices() IDevice
 }
 
 type service struct {
-	store store.Factory
+	store storage.Factory
 }
 
 // NewService 新建服务接口
-func NewService(factory store.Factory) Service {
+func NewService(factory storage.Factory) Service {
 	return &service{store: factory}
 }
 

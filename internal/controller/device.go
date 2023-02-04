@@ -2,7 +2,7 @@ package controller
 
 import (
 	srv "github.com/chenjianhao66/go-GB28181/internal/service"
-	"github.com/chenjianhao66/go-GB28181/internal/store"
+	"github.com/chenjianhao66/go-GB28181/internal/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,7 @@ type DeviceController struct {
 }
 
 // NewDeviceController 新建设备控制器
-func NewDeviceController(store store.Factory) *DeviceController {
+func NewDeviceController(store storage.Factory) *DeviceController {
 	return &DeviceController{
 		srv: srv.NewService(store),
 	}
