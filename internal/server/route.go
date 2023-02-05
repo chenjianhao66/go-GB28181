@@ -33,7 +33,8 @@ func (a *apiServer) initRoute() {
 
 func (a *apiServer) Close() error {
 	ctx := context.Background()
-	withTimeout, _ := context.WithTimeout(ctx, 1*time.Second)
+	withTimeout, cancelFunc := context.WithTimeout(ctx, 1*time.Second)
+	defer cancelFunc()
 	if err := a.h.Shutdown(withTimeout); err != nil {
 		log.Info("close apiserver fail")
 		panic(err)
@@ -58,5 +59,25 @@ func installController(g *gin.Engine) *gin.Engine {
 		device.GET("list", deviceController.List)
 	}
 
+	initMediaHookRoute(g.Group("index/hook"))
+
 	return g
+}
+
+func initMediaHookRoute(group *gin.RouterGroup) {
+	hook := controller.NewMediaHookController()
+	group.POST("on_server_started", hook.OnServerStarted)
+	group.POST("on_server_keepalive", hook.OnServerKeepalive)
+	group.POST("on_play", hook.OnPlay)
+	group.POST("on_publish", hook.OnPublish)
+	group.POST("on_stream_changed", hook.OnStreamChanged)
+	group.POST("on_stream_none_reader", hook.OnStreamNOneReader)
+	group.POST("on_stream_not_found", hook.OnStreamNotFound)
+	group.POST("on_rtp_server_timeout", hook.OnRtpServerTimeout)
+	group.POST("on_flow_report", hook.OnFlowReport)
+	group.POST("on_http_access", hook.OnHttpAccess)
+	group.POST("on_record_mp4", hook.OnRecordMp4)
+	group.POST("on_rtsp_auth", hook.OnRtspAuth)
+	group.POST("on_rtsp_realm", hook.OnRtspRealm)
+	group.POST("on_shell_login", hook.OnShellLogin)
 }
