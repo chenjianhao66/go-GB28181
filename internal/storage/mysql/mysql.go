@@ -41,7 +41,7 @@ func GetMySQLFactory() (storage.Factory, error) {
 	})
 
 	if mysqlFactory == nil || err != nil {
-		return nil, fmt.Errorf("failed to get mysql storage fatory, mysqlFactory: %+v, error: %w", mysqlFactory, err)
+		panic(fmt.Errorf("failed to get mysql storage fatory,  error: %w", err))
 	}
 
 	return mysqlFactory, nil
