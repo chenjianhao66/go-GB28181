@@ -27,7 +27,10 @@ func newRedis() *redisClient {
 		ConnMaxLifetime: option.ConnMaxLifetime,
 	})
 	if err := rdb.Ping(context.Background()).Err(); err != nil {
-		panic(err)
+		panic(fmt.Errorf("connection to redis fail,addr: %s, err: %w",
+			fmt.Sprintf("%s:%d", option.Host, option.Port),
+			err,
+		))
 	}
 	log.Infof("connection to redis success,%v:%v\n", option.Host, option.Port)
 	//fmt.Printf("connection to redis success,%s:%d\n", option.Host, option.Port)
