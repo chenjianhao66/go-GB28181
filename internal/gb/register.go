@@ -57,7 +57,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 			if err := service.Device().Online(device); err != nil {
 				log.Errorf("设备上线失败请检查,%s", err)
 			}
-			deviceInfoQuery(device)
+			go sipCommand.deviceInfoQuery(device)
 		}
 		return
 	}

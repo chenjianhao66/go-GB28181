@@ -48,5 +48,10 @@ func deviceInfoHandler(req sip.Request, tx sip.ServerTransaction) {
 		log.Error("更新设备信息失败", err)
 		return
 	}
-	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
+	response := sip.NewResponseFromRequest("", req, sip.StatusCode(http.StatusOK), "OK", "")
+	err := tx.Respond(response)
+	//_, err := s.s.RespondOnRequest(req, http.StatusOK, http.StatusText(http.StatusOK), "", nil)
+	if err != nil {
+		panic(err)
+	}
 }
