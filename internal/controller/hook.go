@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
+	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,9 +16,9 @@ func NewMediaHookController() MediaHookController {
 // OnServerStarted 服务器启动事件，可以用于监听服务器崩溃重启；此事件对回复不敏感。
 func (m MediaHookController) OnServerStarted(c *gin.Context) {
 	defer c.JSON(200, "success")
-	conf := &model.MediaConfig{}
+	conf := model.MediaConfig{}
 
-	if err := c.ShouldBind(conf); err != nil {
+	if err := c.ShouldBind(&conf); err != nil {
 		log.Error(err)
 		c.JSON(200, model.HookReply{
 			Code: model.ParseParamFail,
@@ -27,7 +28,8 @@ func (m MediaHookController) OnServerStarted(c *gin.Context) {
 	}
 	// do something
 	conf.RemoteIp = c.RemoteIP()
-	c.JSON(200, "")
+	go service.Media().Online(conf)
+	replyAllowMsg(c)
 }
 
 func (m MediaHookController) OnServerKeepalive(c *gin.Context) {

@@ -7,6 +7,8 @@ require (
 	github.com/ghettovoice/gosip v0.0.0-20221216110459-a49cda0b8a0f
 	github.com/gin-gonic/gin v1.8.2
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/panjjo/gosdp v0.0.0-20201029020038-56e3a0ec56ef
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
 	go.uber.org/zap v1.24.0
@@ -45,7 +47,7 @@ require (
 	github.com/onsi/gomega v1.24.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
-	github.com/redis/go-redis/v9 v9.0.2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect

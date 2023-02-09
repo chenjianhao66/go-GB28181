@@ -25,7 +25,7 @@ var (
 )
 
 // GetMySQLFactory get mysql database factory
-func GetMySQLFactory() (storage.Factory, error) {
+func GetMySQLFactory() storage.Factory {
 	var (
 		err          error
 		dbIns        *gorm.DB
@@ -44,7 +44,7 @@ func GetMySQLFactory() (storage.Factory, error) {
 		panic(fmt.Errorf("failed to get mysql storage fatory,  error: %w", err))
 	}
 
-	return mysqlFactory, nil
+	return mysqlFactory
 }
 
 // New 根据MySQL选项去构建gorm对象
@@ -79,10 +79,6 @@ func New(opts *config.MySQLOptions) (*gorm.DB, error) {
 	return db, nil
 }
 
-func (d *datastore) Devices() storage.DeviceStore {
-	return newDevices(d)
-}
-
 // 自定义gorm配置
 func getConfig() *gorm.Config {
 	c := &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true}
@@ -93,4 +89,12 @@ func getConfig() *gorm.Config {
 	})
 	c.Logger = _default.LogMode(logger.Error)
 	return c
+}
+
+func (d *datastore) Devices() storage.DeviceStore {
+	return newDevices(d)
+}
+
+func (d *datastore) Media() storage.MediaStorage {
+	return newMediaStorage(d)
 }

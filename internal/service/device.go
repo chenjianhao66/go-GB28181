@@ -4,8 +4,6 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
-	"github.com/chenjianhao66/go-GB28181/internal/storage/mysql"
-	"sync"
 	"time"
 )
 
@@ -27,20 +25,10 @@ type deviceService struct {
 }
 
 var (
-	dService *deviceService
-	once     sync.Once
+	dService = new(deviceService)
 )
 
 func Device() IDevice {
-	once.Do(func() {
-		factory, err := mysql.GetMySQLFactory()
-		if err != nil {
-			panic(err)
-		}
-		dService = &deviceService{
-			store: factory,
-		}
-	})
 	return dService
 }
 

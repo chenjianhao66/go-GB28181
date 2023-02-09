@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
@@ -38,6 +39,17 @@ func newRedis() *redisClient {
 	return &redisClient{rdb: rdb}
 }
 
+func (r *redisClient) Get(key string) (any, error) {
+	return r.rdb.Get(context.Background(), key).Result()
+}
+
+func (r *redisClient) Set(key string, val any) {
+	b, _ := json.MarshalIndent(val, "", "  ")
+	if err := r.rdb.Set(context.Background(), key, b, redis.KeepTTL).Err(); err != nil {
+		log.Error(err)
+	}
+}
+
 type redisHook struct{}
 
 func (r *redisHook) DialHook(next redis.DialHook) redis.DialHook {
@@ -48,7 +60,7 @@ func (r *redisHook) DialHook(next redis.DialHook) redis.DialHook {
 
 func (r *redisHook) ProcessHook(next redis.ProcessHook) redis.ProcessHook {
 	return func(ctx context.Context, cmd redis.Cmder) error {
-		log.Debugf("execute redis command:%s", cmd.Args()...)
+		log.Infof("execute redis command:%s", cmd.Args()...)
 		_ = next(ctx, cmd)
 		return nil
 	}
