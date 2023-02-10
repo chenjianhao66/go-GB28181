@@ -1,7 +1,8 @@
 package constant
 
 const (
-	MediaServerPrefix = "MEDIA_SERVER"
+	MediaServerPrefix = "GB:MEDIA:SERVER"
+	StreamInfoPrefix  = "GB:MEDIA:STREAM:INFO"
 )
 
 const (
