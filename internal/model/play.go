@@ -23,4 +23,5 @@ type StreamInfo struct {
 	Ts            string `json:"ts"`
 	HttpsTs       string `json:"httpsTs"`
 	WebsocketTs   string `json:"websocketTs"`
+	Ssrc          string `json:"ssrc"`
 }

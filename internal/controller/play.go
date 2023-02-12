@@ -22,7 +22,7 @@ func NewPlayController(store storage.Factory) *PlayController {
 func (p *PlayController) Play(c *gin.Context) {
 	deviceId := c.Param("deviceId")
 	channelId := c.Param("channelId")
-	streamInfo, err := srv.Play().Play(deviceId, channelId)
+	streamInfo, err := p.srv.Play().Play(deviceId, channelId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	}

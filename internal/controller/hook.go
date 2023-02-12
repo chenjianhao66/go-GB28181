@@ -15,6 +15,7 @@ func NewMediaHookController() MediaHookController {
 
 // OnServerStarted 服务器启动事件，可以用于监听服务器崩溃重启；此事件对回复不敏感。
 func (m MediaHookController) OnServerStarted(c *gin.Context) {
+	log.Info("zlm 上线...")
 	defer c.JSON(200, "success")
 	conf := model.MediaConfig{}
 
@@ -27,6 +28,7 @@ func (m MediaHookController) OnServerStarted(c *gin.Context) {
 		return
 	}
 	// do something
+	log.Info(conf)
 	conf.RemoteIp = c.RemoteIP()
 	go service.Media().Online(conf)
 	replyAllowMsg(c)
@@ -43,6 +45,7 @@ func (m MediaHookController) OnServerKeepalive(c *gin.Context) {
 		return
 	}
 	// do something
+	log.Info(keepalive.MediaServerId)
 	replyAllowMsg(c)
 }
 
@@ -144,7 +147,7 @@ func (m MediaHookController) OnShellLogin(c *gin.Context) {
 
 func replyAllowMsg(c *gin.Context) {
 	c.JSON(200, model.HookReply{
-		Code: model.Success,
+		Code: model.RespondSuccess,
 		Msg:  model.SuccessMsg,
 	})
 }

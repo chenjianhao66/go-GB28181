@@ -2,12 +2,12 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/model/constant"
 	"github.com/chenjianhao66/go-GB28181/internal/storage/cache"
+	"github.com/pkg/errors"
 )
 
 type IPlay interface {
@@ -26,36 +26,56 @@ func Play() IPlay {
 
 func (p playService) Play(deviceId, channelId string) (model.StreamInfo, error) {
 	var (
-		streamInfo model.StreamInfo
+		streamInfo  model.StreamInfo
+		mediaDetail model.MediaDetail
+		streamId    = fmt.Sprintf("%s:%s", constant.StreamInfoPrefix, deviceId+"_"+channelId)
 	)
 	device, ok := Device().GetByDeviceId(deviceId)
-	log.Info(device)
 
 	if !ok {
 		return model.StreamInfo{}, deviceNotFound
 	}
-	// TODO 从缓存中获取流信息是否存在，存在则直接返回
-	streamId := fmt.Sprintf("%s:%s", constant.StreamInfoPrefix, deviceId+"_"+channelId)
 	streamJSON, _ := cache.Get(streamId)
 
 	if streamJSON != "" {
 		if err := json.Unmarshal([]byte(streamJSON.(string)), &streamInfo); err != nil {
-			log.Error("解析到流信息结构体失败")
-			return model.StreamInfo{}, errors.New("点播失败")
+			return model.StreamInfo{}, errors.WithMessage(err, "unmarshal json data to struct fail")
 		}
-		mediaDetail, _ := Media().GetMedia(streamInfo.MediaServerId)
 
-		Media().GetRtpServerInfo(streamId, mediaDetail)
+		mediaDetail, err := Media().GetMedia(streamInfo.MediaServerId)
+		if err != nil {
+			return model.StreamInfo{}, err
+		}
 
+		rtpServerInfo, err := Media().GetRtpServerInfo(streamId, mediaDetail)
+		if err != nil {
+			return model.StreamInfo{}, err
+		}
+
+		if rtpServerInfo.Code == model.RespondSuccess {
+			if rtpServerInfo.Exist == true {
+				return streamInfo, nil
+			} else {
+				streamInfo = model.StreamInfo{}
+			}
+		} else {
+			// zlm服务连接失败，重新创建rtp服务并连接
+			log.Errorf("media api response: %+v\n", rtpServerInfo.Msg)
+			streamInfo = model.StreamInfo{}
+		}
 	}
 
-	//if err != nil {
-	//
-	//}
-	// TODO
+	// 判断流信息对象是否是默认值，是默认值的话代表没有这个流信息或者rtp服务连接失败
+	if streamInfo == (model.StreamInfo{}) {
+		rtpPort, ssrc, err := Media().OpenRtpServer(mediaDetail, streamId)
+		streamInfo.Ssrc = ssrc
+
+		if err != nil {
+			return model.StreamInfo{}, errors.WithMessage(err, "create rtp server fail")
+		}
+		//return gb.SipCommand.Play(device, mediaDetail, streamId, ssrc, rtpPort)
+		fmt.Println(rtpPort, device)
+	}
+
 	return model.StreamInfo{}, nil
-}
-
-func getRtpInfo() {
-
 }

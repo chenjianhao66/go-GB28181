@@ -62,7 +62,7 @@ func installController(g *gin.Engine) *gin.Engine {
 		device.GET("list", deviceController.List)
 	}
 	initTestApi(g.Group("test"))
-	initMediaHookRoute(g.Group("index/hook"))
+	initMediaHookRoute(g.Group("/index/hook"))
 
 	return g
 }

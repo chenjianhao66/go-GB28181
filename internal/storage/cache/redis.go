@@ -40,7 +40,11 @@ func newRedis() *redisClient {
 }
 
 func (r *redisClient) Get(key string) (any, error) {
-	return r.rdb.Get(context.Background(), key).Result()
+	result, err := r.rdb.Get(context.Background(), key).Result()
+	if err != nil {
+		log.Error(err)
+	}
+	return result, err
 }
 
 func (r *redisClient) Set(key string, val any) {

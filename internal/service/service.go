@@ -7,6 +7,8 @@ import (
 
 type Service interface {
 	Devices() IDevice
+	Play() IPlay
+	Media() IMedia
 }
 
 type service struct {
@@ -21,6 +23,10 @@ func NewService(factory storage.Factory) Service {
 // Devices 返回设备服务实现接口
 func (s *service) Devices() IDevice {
 	return Device()
+}
+
+func (s *service) Play() IPlay {
+	return Play()
 }
 
 func (s *service) Media() IMedia {

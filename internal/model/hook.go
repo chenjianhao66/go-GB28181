@@ -1,12 +1,12 @@
 package model
 
 const (
-	Success     = 0    //执行成功
-	Exception   = -400 //代码抛异常
-	InvalidArgs = -300 //参数不合法
-	SqlFailed   = -200 //sql执行失败
-	AuthFailed  = -100 //鉴权失败
-	OtherFailed = -1   //业务代码执行失败，
+	RespondSuccess     = 0    //执行成功
+	RespondException   = -400 //代码抛异常
+	RespondInvalidArgs = -300 //参数不合法
+	RespondSqlFailed   = -200 //sql执行失败
+	RespondAuthFailed  = -100 //鉴权失败
+	RespondOtherFailed = -1   //业务代码执行失败，
 )
 
 const (
@@ -148,7 +148,7 @@ type (
 func NewOnPublishDefaultReply() OnPublishHookReply {
 	return OnPublishHookReply{
 		HookReply: HookReply{
-			Code: Success,
+			Code: RespondSuccess,
 			Msg:  SuccessMsg,
 		},
 		AddMuteAudio:   true,

@@ -11,7 +11,7 @@ type SIPCommand struct{}
 
 var sipCommand SIPCommand
 
-// 查询设备信息
+// DeviceInfoQuery 查询设备信息
 func (s SIPCommand) deviceInfoQuery(d model.Device) {
 	document := etree.NewDocument()
 	document.CreateProcInst("xml", "version=\"1.0\" encoding=\"GB2312\"")
@@ -23,5 +23,10 @@ func (s SIPCommand) deviceInfoQuery(d model.Device) {
 	body, _ := document.WriteToString()
 	request := SipFactory.CreateMessageRequest(d, body)
 	log.Debugf("查询设备信息请求：\n", request)
-	SipSender.transmitRequest(request, nil)
+	SipSender.TransmitRequest(request, nil)
+}
+
+func (s SIPCommand) Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, rtpPort int) (model.StreamInfo, error) {
+	log.Infof("点播开始，流id: %s, 设备ip: %s, ssrc: %s, rtp端口: %s\n", streamId, device.Ip, ssrc, rtpPort)
+	return model.StreamInfo{}, nil
 }

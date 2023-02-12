@@ -5,9 +5,7 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/ghettovoice/gosip/sip"
-	sdp "github.com/panjjo/gosdp"
 	"math/rand"
-	"net"
 	"net/http"
 	"strconv"
 	"time"
@@ -22,8 +20,6 @@ type (
 type successCallback func(sip.ClientTransaction, error)
 
 const (
-	branch = "z9hG4bK"
-
 	letterBytes    = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	contentTypeXML = "Application/MANSCDP+xml"
 	contentTypeSDP = "APPLICATION/SDP"
@@ -34,8 +30,8 @@ var (
 	SipSender  Sender
 )
 
-// 发送sip协议请求
-func (sender Sender) transmitRequest(req sip.Request, callback successCallback) {
+// TransmitRequest 发送sip协议请求
+func (sender Sender) TransmitRequest(req sip.Request, callback successCallback) {
 	log.Info("发送SIP Request消息，Method为: ", req.Method())
 	transaction, err := s.s.Request(req)
 	if callback != nil {
@@ -63,7 +59,7 @@ func (p SIPFactory) CreateMessageRequest(d model.Device, body string) sip.Reques
 }
 
 // CreateInviteRequest 创建invite请求
-func (p SIPFactory) CreateInviteRequest() {
+func (p SIPFactory) CreateInviteRequest() sip.Request {
 	body := createSdpInfo()
 
 	requestBuilder := sip.NewRequestBuilder()
@@ -89,25 +85,27 @@ func (p SIPFactory) CreateInviteRequest() {
 	request, err := requestBuilder.Build()
 	if err != nil {
 		log.Error("发生错误：", err)
-		return
+		return nil
 	}
 
-	log.Info("请求：\n", request)
-	tx, err := s.s.Request(request)
-	if err != nil {
-		panic(err)
-	}
-	resp := getResponse(tx)
-	log.Infof("收到invite响应：\n%s", resp)
-	log.Infof("\ntx key: %s", tx.Key().String())
+	return request
 
-	ackRequest := sip.NewAckRequest("", request, resp, "", nil)
-	ackRequest.SetRecipient(request.Recipient())
-	ackRequest.AppendHeader(&sip.ContactHeader{
-		Address: request.Recipient(),
-		Params:  nil,
-	})
-	SipSender.transmitRequest(ackRequest, nil)
+	//log.Info("请求：\n", request)
+	//tx, err := s.s.Request(request)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//resp := getResponse(tx)
+	//log.Infof("收到invite响应：\n%s", resp)
+	//log.Infof("\ntx key: %s", tx.Key().String())
+	//
+	//ackRequest := sip.NewAckRequest("", request, resp, "", nil)
+	//ackRequest.SetRecipient(request.Recipient())
+	//ackRequest.AppendHeader(&sip.ContactHeader{
+	//	Address: request.Recipient(),
+	//	Params:  nil,
+	//})
+	//SipSender.TransmitRequest(ackRequest, nil)
 
 }
 
@@ -190,51 +188,4 @@ func getResponse(tx sip.ClientTransaction) sip.Response {
 		}
 		return resp
 	}
-}
-
-func createSdpInfo() string {
-	origin := sdp.Origin{
-		// TODO 发起者的国标id，后续修改
-		Username:       "44010200491318000001",
-		SessionID:      0,
-		SessionVersion: 0,
-		// Internet
-		NetworkType: "IN",
-		// ipv4
-		AddressType: "IP4",
-		// TODO 流媒体服务ip
-		Address: "192.168.1.224",
-	}
-
-	video := sdp.Media{
-		Description: sdp.MediaDescription{
-			Type:     "video",
-			Port:     30002,
-			Protocol: "RTP/RTCP",
-			Formats:  []string{"96", "98", "97"},
-		},
-		Connection: sdp.ConnectionData{
-			NetworkType: "IN",
-			AddressType: "IP4",
-			// TODO 流媒体服务IP
-			IP:  net.ParseIP("192.168.1.224"),
-			TTL: 0,
-		},
-	}
-	video.AddAttribute("recvonly")
-	video.AddAttribute("rtpmap", "96", "PS/90000")
-	video.AddAttribute("rtpmap", "98", "H264/90000")
-	video.AddAttribute("rtpmap", "97", "MPEG4/90000")
-
-	msg := sdp.Message{
-		Version: 0,
-		Origin:  origin,
-		Name:    "Play",
-		Medias:  sdp.Medias{video},
-		Timing:  []sdp.Timing{sdp.Timing{Start: time.Time{}, End: time.Time{}}},
-		SSRC:    "0102003583",
-	}
-	session := msg.Append(sdp.Session{})
-	bytes := session.AppendTo([]byte{})
-	return string(bytes)
 }
