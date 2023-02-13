@@ -9,7 +9,7 @@ import (
 // SIPCommand SIP协议的指令结构
 type SIPCommand struct{}
 
-var sipCommand SIPCommand
+var SipCommand SIPCommand
 
 // DeviceInfoQuery 查询设备信息
 func (s SIPCommand) deviceInfoQuery(d model.Device) {

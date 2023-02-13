@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/parser"
-	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/ghettovoice/gosip/sip"
 	"net/http"
 )
@@ -26,7 +25,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 			return
 		}
 		offlineFlag := false
-		device, ok := service.Device().GetByDeviceId(fromRequest.DeviceId)
+		device, ok := storage.getDeviceById(fromRequest.DeviceId)
 
 		if !ok {
 			log.Debug("not found from device from database")
@@ -51,13 +50,13 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 
 		if offlineFlag {
 			// 注销请求
-			_ = service.Device().Offline(device)
+			_ = storage.deviceOffline(device)
 		} else {
 			// 注册请求
-			if err := service.Device().Online(device); err != nil {
+			if err := storage.deviceOnline(device); err != nil {
 				log.Errorf("设备上线失败请检查,%s", err)
 			}
-			go sipCommand.deviceInfoQuery(device)
+			go SipCommand.deviceInfoQuery(device)
 		}
 		return
 	}

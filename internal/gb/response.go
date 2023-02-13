@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
-	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/ghettovoice/gosip/sip"
 	"net/http"
 )
@@ -44,7 +43,7 @@ func deviceInfoHandler(req sip.Request, tx sip.ServerTransaction) {
 		DeviceId:     d.DeviceID,
 	}
 
-	if err := service.Device().UpdateDeviceInfo(dev); err != nil {
+	if err := storage.updateDeviceInfo(dev); err != nil {
 		log.Error("更新设备信息失败", err)
 		return
 	}
