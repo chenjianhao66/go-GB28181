@@ -54,10 +54,21 @@ sip:
     password: admin123
     user-agent: gb
 
+
+media:
+    # [必修修改] zlm服务器的唯一id
+    id: FQ3TF8yT83wh5Wvz
+    # [必须修改] zlm服务器的内网IP
+    ip: 192.168.1.224
+    # [必须修改] zlm服务器的http.port
+    http-port: 8000
+    # [可选] zlm服务器的hook.admin_params=secret
+    secret: 035c73f7-bb6b-4889-a715-d9eb2d1925cc
+
 # [可选] 日志配置, 一般不需要改
 log:
     # 日志级别
-    level: info
+    level: debug
     # 日志路径
     path: ./log
     # 日志文件名称

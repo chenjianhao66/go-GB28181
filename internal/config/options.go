@@ -10,6 +10,7 @@ type Options struct {
 	RedisOptions  *RedisOptions  `json:"redis" mapstructure:"redis"`
 	SIPOptions    *SIPOptions    `json:"sip" mapstructure:"sip"`
 	LogOptions    *LogOptions    `json:"log" mapstructure:"log"`
+	MediaOptions  *MediaOptions  `json:"media" mapstructure:"media"`
 }
 
 const defaultConfigName = "application"
@@ -26,6 +27,7 @@ func initOptions() *Options {
 		RedisOptions:  newRedisOptions(),
 		SIPOptions:    newSIPOptions(),
 		LogOptions:    newLogOptions(),
+		MediaOptions:  newMediaOption(),
 	}
 }
 
