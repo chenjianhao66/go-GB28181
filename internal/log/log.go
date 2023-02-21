@@ -23,12 +23,12 @@ func initLog() *zap.SugaredLogger {
 func getJSONEncoder() zapcore.Encoder {
 	// 自定义时间输出格式
 	customTimeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString("[" + t.Format("2006-01-02 15:04:05.000") + "]")
+		enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
 	}
 
 	// 自定义日志级别显示
 	customLevelEncoder := func(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString("[" + level.CapitalString() + "]")
+		enc.AppendString(level.CapitalString())
 	}
 
 	// 定义zap配置信息
