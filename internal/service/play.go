@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chenjianhao66/go-GB28181/internal/gb"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/model/constant"
@@ -28,23 +29,24 @@ func (p playService) Play(deviceId, channelId string) (model.StreamInfo, error) 
 	var (
 		streamInfo  model.StreamInfo
 		mediaDetail model.MediaDetail
-		streamId    = fmt.Sprintf("%s:%s", constant.StreamInfoPrefix, deviceId+"_"+channelId)
+		streamId    = fmt.Sprintf("%s_%s", deviceId, channelId)
 	)
 	device, ok := Device().GetByDeviceId(deviceId)
-
 	if !ok {
 		return model.StreamInfo{}, deviceNotFound
 	}
-	streamJSON, _ := cache.Get(streamId)
+
+	mediaDetail, err := Media().GetDefaultMedia()
+	if err != nil {
+		return model.StreamInfo{}, err
+	}
+
+	key := fmt.Sprintf("%s:%s", constant.StreamInfoPrefix, streamId)
+	streamJSON, _ := cache.Get(key)
 
 	if streamJSON != "" {
 		if err := json.Unmarshal([]byte(streamJSON.(string)), &streamInfo); err != nil {
 			return model.StreamInfo{}, errors.WithMessage(err, "unmarshal json data to struct fail")
-		}
-
-		mediaDetail, err := Media().GetMedia(streamInfo.MediaServerId)
-		if err != nil {
-			return model.StreamInfo{}, err
 		}
 
 		rtpServerInfo, err := Media().GetRtpServerInfo(streamId, mediaDetail)
@@ -73,8 +75,7 @@ func (p playService) Play(deviceId, channelId string) (model.StreamInfo, error) 
 		if err != nil {
 			return model.StreamInfo{}, errors.WithMessage(err, "create rtp server fail")
 		}
-		//return gb.SipCommand.Play(device, mediaDetail, streamId, ssrc, rtpPort)
-		fmt.Println(rtpPort, device)
+		return gb.SipCommand.Play(device, mediaDetail, streamId, ssrc, channelId, rtpPort)
 	}
 
 	return model.StreamInfo{}, nil

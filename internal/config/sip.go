@@ -33,7 +33,7 @@ func SIPPort() string {
 	return o.SIPOptions.Port
 }
 
-func SIPUser() string {
+func SIPId() string {
 	return o.SIPOptions.Id
 }
 

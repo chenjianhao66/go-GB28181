@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/log"
 	srv "github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,9 @@ func (p *PlayController) Play(c *gin.Context) {
 	channelId := c.Param("channelId")
 	streamInfo, err := p.srv.Play().Play(deviceId, channelId)
 	if err != nil {
+		log.Errorf("%+v", err)
 		c.JSON(http.StatusInternalServerError, err.Error())
+		return
 	}
 	c.JSON(http.StatusOK, streamInfo)
 }

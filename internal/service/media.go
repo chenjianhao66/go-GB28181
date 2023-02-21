@@ -18,6 +18,7 @@ type IMedia interface {
 	GetRtpServerInfo(stream string, mediaDetail model.MediaDetail) (model.GetRtpInfoResp, error)
 	OpenRtpServer(detail model.MediaDetail, stream string) (rtpPort int, ssrc string, err error)
 	GetMedia(serverId string) (model.MediaDetail, error)
+	GetDefaultMedia() (model.MediaDetail, error)
 }
 
 type mediaService struct {
@@ -33,6 +34,9 @@ func Media() IMedia {
 // Online 流媒体服务上线事件
 func (m *mediaService) Online(c model.MediaConfig) {
 	newMediaDetail := model.NewMediaDetailWithConfig(&c)
+	if config.MediaIp() == newMediaDetail.Ip {
+		newMediaDetail.Default = true
+	}
 	if err := m.store.Media().Save(newMediaDetail); err != nil {
 		log.Error(err)
 		return
@@ -120,4 +124,29 @@ func (m *mediaService) GetMedia(serverId string) (model.MediaDetail, error) {
 		return model.MediaDetail{}, errors.WithMessage(err, "GetMedia function unmarshal data to struct fail")
 	}
 	return detail, err
+}
+
+func (m *mediaService) GetDefaultMedia() (model.MediaDetail, error) {
+	key := fmt.Sprintf("%s:%s", constant.MediaServerPrefix, config.MediaServiceId())
+	data, err := cache.Get(key)
+	if err != nil {
+		return model.MediaDetail{}, errors.WithMessage(err, "get media detail from cache fail")
+	}
+
+	if data != "" {
+		detail := model.MediaDetail{}
+		err := json.Unmarshal([]byte(data.(string)), &detail)
+		if err != nil {
+			return model.MediaDetail{}, errors.WithMessage(err, "unmarshal json data to struct fail")
+		}
+		return detail, nil
+	}
+
+	// 从数据库获取
+	detail, err := m.store.Media().GetMediaByID(config.MediaServiceId())
+	if err != nil {
+		return model.MediaDetail{}, errors.WithMessage(err, "get media detail from database fail")
+	}
+
+	return detail, nil
 }

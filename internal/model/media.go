@@ -25,6 +25,7 @@ type MediaDetail struct {
 	RtpEnable         bool       `gorm:"column:rtpEnable"`
 	RtpPortRange      string     `gorm:"column:rtpPortRange"`
 	Secret            string     `gorm:"column:secret"`
+	Default           bool       `gorm:"column:default"`
 	HookAliveInterval int        `gorm:"column:hookAliveInterval"`
 	CreateTime        time.Time  `gorm:"column:createTime;autoUpdateTime:milli"`
 	UpdateTime        time.Time  `gorm:"column:updateTime;autoUpdateTime:milli"`
