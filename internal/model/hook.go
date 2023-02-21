@@ -200,9 +200,9 @@ type (
 	OriginData struct {
 		Identifier string `json:"identifier,omitempty"`
 		LocalIp    string `json:"local_ip,omitempty"`
-		LocalPort  string `json:"local_port,omitempty"`
+		LocalPort  int    `json:"local_port,omitempty"`
 		PeerIp     string `json:"peer_ip,omitempty"`
-		PeerPort   string `json:"peer_port,omitempty"`
+		PeerPort   int    `json:"peer_port,omitempty"`
 	}
 
 	// Track 音视频轨道

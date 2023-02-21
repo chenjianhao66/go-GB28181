@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/gb"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 type MediaHookController struct{}
@@ -28,7 +30,7 @@ func (m MediaHookController) OnServerStarted(c *gin.Context) {
 		return
 	}
 	// do something
-	log.Info(conf)
+	log.Info("收到zlm上线事件,media_server_id:", conf.GeneralMediaServerId, "ip:", conf.RemoteIp, "port:", conf.HttpPort)
 	conf.RemoteIp = c.RemoteIP()
 	go service.Media().Online(conf)
 	replyAllowMsg(c)
@@ -45,7 +47,7 @@ func (m MediaHookController) OnServerKeepalive(c *gin.Context) {
 		return
 	}
 	// do something
-	log.Info(keepalive.MediaServerId)
+	log.Debugf("收到 Zlm id: %s 心跳", keepalive.MediaServerId)
 	replyAllowMsg(c)
 }
 
@@ -90,11 +92,18 @@ func (m MediaHookController) OnStreamChanged(c *gin.Context) {
 		return
 	}
 	// do something
-
+	log.Info("收到流改变事件,stream_id:", hookParam.Stream, "register: ", hookParam.Register, "protocol:", hookParam.Schema)
 	replyAllowMsg(c)
 }
 
 func (m MediaHookController) OnStreamNOneReader(c *gin.Context) {
+	closeStream := func() {
+		c.JSON(200, model.OnStreamNoneReaderReply{
+			Code:  0,
+			Close: true,
+		})
+	}
+
 	hookParam := model.OnStreamNoneReader{}
 	if err := c.ShouldBindJSON(&hookParam); err != nil {
 		log.Error(err)
@@ -106,11 +115,27 @@ func (m MediaHookController) OnStreamNOneReader(c *gin.Context) {
 	}
 
 	// do something
-	// TODO 发送bye消息给流发送者，关闭推流
-	c.JSON(200, model.OnStreamNoneReaderReply{
-		Code:  0,
-		Close: true,
-	})
+	log.Info("收到流无人观看事件,stream_id:", hookParam.Stream, "media_server_id:", hookParam.MediaServerId)
+
+	s := strings.Split(hookParam.Stream, "_")
+	if len(s) == 0 {
+		log.Error("stream split by '_' fail")
+		closeStream()
+		return
+	}
+
+	device, exist := service.Device().GetByDeviceId(s[0])
+	if !exist {
+		log.Error("not found device by deviceId query")
+		closeStream()
+		return
+	}
+
+	err := gb.SipCommand.StopPlay(hookParam.Stream, s[1], device)
+	if err != nil {
+		log.Errorf("%+v", err)
+	}
+	closeStream()
 }
 
 func (m MediaHookController) OnStreamNotFound(c *gin.Context) {
