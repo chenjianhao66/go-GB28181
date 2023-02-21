@@ -2,15 +2,20 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
+	"github.com/chenjianhao66/go-GB28181/internal/model/constant"
+	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"net"
+	"sync"
 )
 
 type redisClient struct {
 	rdb *redis.Client
+	m   *sync.Mutex
 }
 
 func newRedis() *redisClient {
@@ -27,12 +32,48 @@ func newRedis() *redisClient {
 		ConnMaxLifetime: option.ConnMaxLifetime,
 	})
 	if err := rdb.Ping(context.Background()).Err(); err != nil {
-		panic(err)
+		panic(fmt.Errorf("connection to redis fail,addr: %s, err: %w",
+			fmt.Sprintf("%s:%d", option.Host, option.Port),
+			err,
+		))
 	}
 	log.Infof("connection to redis success,%v:%v\n", option.Host, option.Port)
 	//fmt.Printf("connection to redis success,%s:%d\n", option.Host, option.Port)
 	rdb.AddHook(&redisHook{})
-	return &redisClient{rdb: rdb}
+	return &redisClient{
+		rdb: rdb,
+		m:   &sync.Mutex{},
+	}
+}
+
+func (r *redisClient) Get(key string) (any, error) {
+	result, err := r.rdb.Get(context.Background(), key).Result()
+	if err != nil {
+		log.Error(err)
+	}
+	return result, err
+}
+
+func (r *redisClient) Set(key string, val any) {
+	b, _ := json.MarshalIndent(val, "", "  ")
+	if err := r.rdb.Set(context.Background(), key, b, redis.KeepTTL).Err(); err != nil {
+		log.Error(err)
+	}
+}
+
+func (r *redisClient) Del(key string) error {
+	_, err := r.rdb.Del(context.Background(), key).Result()
+	if err != nil {
+		log.Error(err)
+		return errors.New(err.Error())
+	}
+	return err
+}
+
+func (r *redisClient) GetCeq() (int64, error) {
+	r.m.Lock()
+	defer r.m.Unlock()
+	return r.rdb.Incr(context.Background(), constant.CeqPrefix).Result()
 }
 
 type redisHook struct{}

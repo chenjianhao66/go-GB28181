@@ -1,36 +1,48 @@
 package gb
 
 import (
-	"github.com/beevik/etree"
+	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
+	"github.com/chenjianhao66/go-GB28181/internal/storage/cache"
 	"github.com/ghettovoice/gosip/sip"
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"time"
 )
 
-const (
-	branch = "z9hG4bK"
-
-	letterBytes    = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	contentTypeXML = "Application/MANSCDP+xml"
+type (
+	SIPFactory struct{}
+	Sender     struct{}
 )
 
-func sendDeviceInfoQuery(d model.Device) {
-	document := etree.NewDocument()
-	document.CreateProcInst("xml", "version=\"1.0\" encoding=\"GB2312\"")
-	query := document.CreateElement("Query")
-	query.CreateElement("CmdType").CreateText("DeviceInfo")
-	query.CreateElement("SN").CreateText("701385")
-	query.CreateElement("DeviceID").CreateText("44010200491118000001")
-	document.Indent(2)
-	xml, _ := document.WriteToString()
-	createMessageRequest(d, xml)
+// 发送请求之后的回调
+type successCallback func(sip.ClientTransaction, error)
+
+const (
+	letterBytes    = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	contentTypeXML = "Application/MANSCDP+xml"
+	contentTypeSDP = "APPLICATION/SDP"
+)
+
+var (
+	SipFactory SIPFactory
+	SipSender  Sender
+)
+
+// TransmitRequest 发送sip协议请求
+func (sender Sender) TransmitRequest(req sip.Request) (sip.ClientTransaction, error) {
+	log.Info("发送SIP Request消息，Method为: ", req.Method())
+	transaction, err := s.s.Request(req)
+	return transaction, err
 }
 
-func createMessageRequest(d model.Device, xml string) {
+// createMessageRequest 创建Message类型请求
+func (p SIPFactory) createMessageRequest(d model.Device, body string) sip.Request {
 	requestBuilder := sip.NewRequestBuilder()
 	requestBuilder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
 
@@ -43,19 +55,102 @@ func createMessageRequest(d model.Device, xml string) {
 	requestBuilder.SetMethod(sip.MESSAGE)
 	userAgent := sip.UserAgentHeader("go-gb")
 	requestBuilder.SetUserAgent(&userAgent)
-	requestBuilder.SetBody(xml)
-	req, _ := requestBuilder.Build()
-	log.Info("\n", req)
-	if err := send(req); err != nil {
-		panic(err)
+	requestBuilder.SetBody(body)
+
+	ceq, err := cache.GetCeq()
+	if err != nil {
+		log.Error("get ceq in cache fail,", err)
+	} else {
+		requestBuilder.SetSeqNo(cast.ToUint(ceq))
 	}
+	req, _ := requestBuilder.Build()
+	return req
+}
+
+// createInviteRequest 创建invite请求
+func (p SIPFactory) createInviteRequest(device model.Device, detail model.MediaDetail, channelId string, ssrc string, rtpPort int) sip.Request {
+	body := createSdpInfo(detail.Ip, channelId, ssrc, rtpPort)
+
+	requestBuilder := sip.NewRequestBuilder()
+	to := newTo(channelId, device.Ip)
+	requestBuilder.SetMethod(sip.INVITE)
+	requestBuilder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
+	requestBuilder.SetTo(to)
+	sipUri := &sip.SipUri{
+		FUser: sip.String{Str: channelId},
+		FHost: to.Uri.Host(),
+	}
+	requestBuilder.SetRecipient(sipUri)
+	requestBuilder.AddVia(newVia("UDP"))
+	requestBuilder.SetContact(newTo(config.SIPId(), fmt.Sprintf("%s:%s", config.SIPAddress(), config.SIPPort())))
+	contentType := sip.ContentType(contentTypeSDP)
+	requestBuilder.SetContentType(&contentType)
+	requestBuilder.SetBody(body)
+	ceq, err := cache.GetCeq()
+	if err != nil {
+		log.Error("get ceq in cache fail,", err)
+	} else {
+		requestBuilder.SetSeqNo(cast.ToUint(ceq))
+	}
+	callID := sip.CallID(fmt.Sprintf("%s", randString(32)))
+	requestBuilder.SetCallID(&callID)
+	header := sip.GenericHeader{
+		HeaderName: "Subject",
+		Contents:   fmt.Sprintf("%s:%s,%s:%d", channelId, ssrc, config.SIPId(), 0),
+	}
+	requestBuilder.AddHeader(&header)
+	request, err := requestBuilder.Build()
+	if err != nil {
+		log.Error("发生错误：", err)
+		return nil
+	}
+
+	return request
+}
+
+// create bye request
+func (c SIPFactory) createByeRequest(channelId string, device model.Device, tx SipTX) (sip.Request, error) {
+
+	fromAddress := newFromAddress(newParams(map[string]string{"tag": tx.FromTag}))
+
+	toAddress := newTo(channelId, device.Ip)
+	toAddress.Params = newParams(map[string]string{"tag": tx.ToTag})
+
+	via := newVia(device.Transport)
+	via.Params = newParams(map[string]string{"branch": tx.ViaBranch})
+
+	callID := sip.CallID(tx.CallId)
+	ceq, err := cache.GetCeq()
+	if err != nil {
+		log.Error("get ceq in cache fail,", err)
+		ceq = 0
+	}
+
+	request, err := sip.NewRequestBuilder().
+		SetFrom(fromAddress).
+		SetTo(toAddress).
+		SetMethod(sip.BYE).
+		AddVia(via).
+		SetContact(newTo(config.SIPId(), fmt.Sprintf("%s:%s", config.SIPAddress(), config.SIPPort()))).
+		SetCallID(&callID).
+		SetSeqNo(cast.ToUint(ceq)).
+		SetRecipient(&sip.SipUri{
+			FUser: sip.String{channelId},
+			FHost: device.Ip,
+		}).Build()
+
+	if err != nil {
+		return nil, errors.WithMessage(err, "generate bye request fail")
+	}
+	return request, nil
 }
 
 // 从自身SIP服务获取地址返回FromHeader
 func newFromAddress(params sip.Params) *sip.Address {
+	log.Info(config.SIPId())
 	return &sip.Address{
 		Uri: &sip.SipUri{
-			FUser: sip.String{Str: config.SIPUser()},
+			FUser: sip.String{Str: config.SIPId()},
 			FHost: config.SIPDomain(),
 		},
 		Params: params,
@@ -87,7 +182,7 @@ func newVia(transport string) *sip.ViaHop {
 	p := sip.Port(port)
 
 	params := newParams(map[string]string{
-		"branch": branch + strconv.Itoa(int(time.Now().UnixMilli())),
+		"branch": fmt.Sprintf("%s%d", "z9hG4bK", time.Now().UnixMilli()),
 	})
 
 	return &sip.ViaHop{
@@ -100,7 +195,6 @@ func newVia(transport string) *sip.ViaHop {
 	}
 }
 
-// randString https://github.com/kpbird/golang_random_string
 func randString(n int) string {
 	rand.Seed(time.Now().UnixNano())
 	output := make([]byte, n)
@@ -119,4 +213,22 @@ func randString(n int) string {
 	}
 
 	return string(output)
+}
+
+func getResponse(tx sip.ClientTransaction) sip.Response {
+	timer := time.NewTimer(5 * time.Second)
+
+	for {
+		select {
+		case resp := <-tx.Responses():
+			if resp.StatusCode() == sip.StatusCode(http.StatusContinue) ||
+				resp.StatusCode() == sip.StatusCode(http.StatusSwitchingProtocols) {
+				continue
+			}
+			return resp
+		case <-timer.C:
+			log.Error("获取响应超时")
+			return nil
+		}
+	}
 }

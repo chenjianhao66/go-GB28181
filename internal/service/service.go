@@ -1,9 +1,14 @@
 package service
 
-import "github.com/chenjianhao66/go-GB28181/internal/storage"
+import (
+	"github.com/chenjianhao66/go-GB28181/internal/storage"
+	"github.com/chenjianhao66/go-GB28181/internal/storage/mysql"
+)
 
 type Service interface {
 	Devices() IDevice
+	Play() IPlay
+	Media() IMedia
 }
 
 type service struct {
@@ -18,4 +23,18 @@ func NewService(factory storage.Factory) Service {
 // Devices 返回设备服务实现接口
 func (s *service) Devices() IDevice {
 	return Device()
+}
+
+func (s *service) Play() IPlay {
+	return Play()
+}
+
+func (s *service) Media() IMedia {
+	return Media()
+}
+
+func init() {
+	factory := mysql.GetMySQLFactory()
+	dService.store = factory
+	mService.store = factory
 }

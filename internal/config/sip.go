@@ -8,7 +8,7 @@ type SIPOptions struct {
 	Ip        string `json:"ip,omitempty" mapstructure:"ip"`
 	Port      string `json:"port,omitempty" mapstructure:"port"`
 	Domain    string `json:"domain,omitempty" mapstructure:"domain"`
-	Id        string `json:"id,omitempty" mapstructure:"id"`
+	Id        string `json:"id" mapstructure:"id"`
 	Password  string `json:"password,omitempty" mapstructure:"password"`
 	UserAgent string `json:"user-agent" mapstructure:"user-agent"`
 }
@@ -21,6 +21,7 @@ func newSIPOptions() *SIPOptions {
 		Id:     "44010200492000000001",
 	}
 	_ = viper.UnmarshalKey("sip", s)
+	s.Id = "44010200492000000001"
 	return s
 }
 
@@ -32,7 +33,7 @@ func SIPPort() string {
 	return o.SIPOptions.Port
 }
 
-func SIPUser() string {
+func SIPId() string {
 	return o.SIPOptions.Id
 }
 

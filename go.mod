@@ -7,7 +7,12 @@ require (
 	github.com/ghettovoice/gosip v0.0.0-20221216110459-a49cda0b8a0f
 	github.com/gin-gonic/gin v1.8.2
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/panjjo/gosdp v0.0.0-20201029020038-56e3a0ec56ef
+	github.com/parnurzeal/gorequest v0.2.16
+	github.com/pkg/errors v0.9.1
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/sirupsen/logrus v1.9.0
+	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.14.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.1.0
@@ -19,6 +24,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/discoviking/fsm v0.0.0-20150126104936-f4a273feecca // indirect
+	github.com/elazarl/goproxy v0.0.0-20221015165544-a0805db90819 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -45,10 +51,9 @@ require (
 	github.com/onsi/gomega v1.24.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
-	github.com/redis/go-redis/v9 v9.0.2 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b // indirect
+	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
@@ -67,4 +72,5 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	moul.io/http2curl v1.0.0 // indirect
 )

@@ -4,8 +4,6 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
-	"github.com/chenjianhao66/go-GB28181/internal/storage/mysql"
-	"sync"
 	"time"
 )
 
@@ -27,20 +25,10 @@ type deviceService struct {
 }
 
 var (
-	dService *deviceService
-	once     sync.Once
+	dService = new(deviceService)
 )
 
 func Device() IDevice {
-	once.Do(func() {
-		factory, err := mysql.GetMySQLFactory()
-		if err != nil {
-			panic(err)
-		}
-		dService = &deviceService{
-			store: factory,
-		}
-	})
 	return dService
 }
 
@@ -81,7 +69,7 @@ func (d *deviceService) Online(device model.Device) error {
 }
 
 func (d *deviceService) Offline(device model.Device) error {
-	log.Infof("%s设备离线,设备信息：%#v", device.DeviceId, device)
+	log.Infof("%s设备离线,设备信息：%+v", device.DeviceId, device)
 	device.Offline = 0
 	err := d.Update(device)
 	if err != nil {

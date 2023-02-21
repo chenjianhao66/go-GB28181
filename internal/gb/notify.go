@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/parser"
-	"github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/ghettovoice/gosip/sip"
 	"net/http"
 )
@@ -28,7 +27,7 @@ func keepaliveHandler(req sip.Request, tx sip.ServerTransaction) {
 	if !ok {
 		return
 	}
-	device, ok = service.Device().GetByDeviceId(device.DeviceId)
+	device, ok = storage.getDeviceById(device.DeviceId)
 	if !ok {
 		log.Debugf("{%s}设备不存在", device.DeviceId)
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusNotFound, "device "+device.DeviceId+"not found", ""))
@@ -36,7 +35,7 @@ func keepaliveHandler(req sip.Request, tx sip.ServerTransaction) {
 	}
 
 	// 更新心跳时间
-	if err := service.Device().Keepalive(device.ID); err != nil {
+	if err := storage.deviceKeepalive(device.ID); err != nil {
 		log.Debugf("{%d,%s}更新心跳失败：%s", device.ID, device.DeviceId, err)
 	}
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
