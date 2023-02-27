@@ -61,3 +61,12 @@ func (d *data) getDeviceById(deviceId string) (model.Device, bool) {
 func (d *data) updateDeviceInfo(device model.Device) error {
 	return d.s.Devices().UpdateDeviceInfo(device)
 }
+
+func (d *data) syncChannel(c DeviceCatalogResponse) {
+	var channels []model.Channel
+	for _, item := range c.DeviceList.Items {
+		c := item.ConvertToChannel()
+		channels = append(channels, c)
+	}
+	_ = d.s.Channel().SaveBatch(channels)
+}

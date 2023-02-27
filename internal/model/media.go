@@ -11,7 +11,7 @@ import (
 type MediaDetail struct {
 	// secret
 	ID                string     `gorm:"column:id;primaryKey;unique"`
-	Ip                string     `gorm:"column:ip"`
+	Ip                string     `gorm:"column:ip;size:100"`
 	HookIp            string     `gorm:"column:hookIp"`
 	SdpIp             string     `gorm:"column:sdpIp"`
 	StreamIp          string     `gorm:"column:streamIp"`

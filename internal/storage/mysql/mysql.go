@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
+	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
@@ -76,7 +77,9 @@ func New(opts *config.MySQLOptions) (*gorm.DB, error) {
 	// 设置最多空闲连接池里的最多连接数
 	sqlDB.SetMaxIdleConns(opts.MaxIdleConnections)
 
-	return db, nil
+	err = db.AutoMigrate(model.Device{}, model.MediaDetail{}, model.Channel{})
+
+	return db, err
 }
 
 // 自定义gorm配置
@@ -97,4 +100,8 @@ func (d *datastore) Devices() storage.DeviceStore {
 
 func (d *datastore) Media() storage.MediaStorage {
 	return newMediaStorage(d)
+}
+
+func (d *datastore) Channel() storage.ChannelStore {
+	return newChannelStorage(d)
 }

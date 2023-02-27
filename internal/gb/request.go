@@ -232,3 +232,13 @@ func getResponse(tx sip.ClientTransaction) sip.Response {
 		}
 	}
 }
+
+func responseAck(transaction sip.ServerTransaction, request sip.Request) error {
+	err := transaction.Respond(sip.NewResponseFromRequest("", request, sip.StatusCode(http.StatusOK),
+		http.StatusText(http.StatusOK), ""))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return nil
+}
