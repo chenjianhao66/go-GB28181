@@ -9,6 +9,7 @@ type Service interface {
 	Devices() IDevice
 	Play() IPlay
 	Media() IMedia
+	Channel() IChannel
 }
 
 type service struct {
@@ -33,8 +34,13 @@ func (s *service) Media() IMedia {
 	return Media()
 }
 
+func (s *service) Channel() IChannel {
+	return Channel()
+}
+
 func init() {
 	factory := mysql.GetMySQLFactory()
 	dService.store = factory
 	mService.store = factory
+	cService.store = factory
 }

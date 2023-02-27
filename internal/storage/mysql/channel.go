@@ -38,3 +38,13 @@ func (c channelStorage) SaveBatch(channels []model.Channel) error {
 	}
 	return nil
 }
+
+func (c channelStorage) List(deviceId string) ([]model.Channel, error) {
+	var list []model.Channel
+	err := c.db.Model(&model.Channel{}).Where("parentId = ?", deviceId).Find(&list).Error
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return list, nil
+}
