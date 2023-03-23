@@ -11,7 +11,7 @@ go-GB28181是一个基于GB28181-2016标准实现的网络视频平台，用 Go 
   - [ ] 设备控制
   - [ ] 设备配置
 - [ ] 信息查询
-  - [ ] 设备目录查询
+  - [x] 设备目录查询
   - [ ] 设备状态查询
   - [ ] 文件目录查询
   - [ ] 报警查询
@@ -28,21 +28,20 @@ go-GB28181是一个基于GB28181-2016标准实现的网络视频平台，用 Go 
 # 项目目录结构
 
 ```
-├── config                    ## 配置文件目录以及模板
-│   ├── application-dev.yml
-│   └── application.yml
+├── config                   ## 配置文件目录以及模板
 ├── go.mod
 ├── go.sum
-├── internal                  ## 私有目录
-│   ├── config                ## 配置文件
-│   ├── controller            ## api控制器
-│   ├── gb                    ## 国标
-│   ├── log                   ## log包
-│   ├── model                 ## 数据库实体struct
-│   ├── parser                ## xml、json等解析代码包
-│   ├── server                ## 集成api、sip等服务
-│   ├── service               ## mvc中的service
-│   └── store                 ## mvc中的dao层
+├── internal
+│   ├── config         ## 配置文件解析
+│   ├── controller     ## web控制器
+│   ├── gb             ## 国标协议处理
+│   ├── log            ## log
+│   ├── model          ## 数据库实体
+│   ├── parser         ## xml、json等解析逻辑
+│   ├── server         ## 集成api、sip等服务
+│   ├── service        ## mvc中的service层
+│   ├── storage        ## mvc中的dao曾
+│   └── util           ## 工具包
 ├── main.go
 ├── Makefile
 └── README.md
