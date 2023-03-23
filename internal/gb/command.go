@@ -6,6 +6,7 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	"github.com/chenjianhao66/go-GB28181/internal/model/constant"
+	"github.com/chenjianhao66/go-GB28181/internal/parser"
 	"github.com/chenjianhao66/go-GB28181/internal/storage/cache"
 	"github.com/ghettovoice/gosip/sip"
 	"github.com/pkg/errors"
@@ -29,6 +30,21 @@ func (c SIPCommand) deviceInfoQuery(d model.Device) {
 	request := SipFactory.createMessageRequest(d, body)
 	log.Debugf("查询设备信息请求：\n", request)
 	_, _ = SipSender.TransmitRequest(request)
+	c.deviceCatalogQuery(d)
+}
+
+func (c SIPCommand) deviceCatalogQuery(device model.Device) {
+	xml, err := parser.CreateQueryXML(parser.CatalogCmdType, "44010200491118000001")
+	if err != nil {
+		return
+	}
+
+	request := SipFactory.createMessageRequest(device, xml)
+	log.Debugf("发送设备目录查询信息：\n%s", request)
+	_, err = SipSender.TransmitRequest(request)
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func (c SIPCommand) Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, channelId string, rtpPort int) (model.StreamInfo, error) {
