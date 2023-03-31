@@ -14,8 +14,14 @@ import (
 )
 
 type QueryType string
+type ControlType string
 
 type WithKeyValue func(element *etree.Element)
+
+const (
+	DeviceConfig  ControlType = "DeviceConfig"
+	DeviceControl ControlType = "DeviceControl"
+)
 
 const (
 	DeviceStatusCmdType   QueryType = "DeviceStatus"
@@ -50,10 +56,39 @@ func CreateQueryXML(cmd QueryType, deviceId string, kvs ...WithKeyValue) (string
 	return body, nil
 }
 
+func CreateControlXml(cmd ControlType, deviceId string, kvs ...WithKeyValue) (string, error) {
+	document := etree.NewDocument()
+	document.CreateProcInst("xml", "version=\"1.0\" encoding=\"GB2312\"")
+	query := document.CreateElement("ControlPTZ")
+	query.CreateElement("CmdType").CreateText(string(cmd))
+	query.CreateElement("SN").CreateText(getSN())
+	query.CreateElement("DeviceID").CreateText(deviceId)
+
+	for _, kv := range kvs {
+		kv(query)
+	}
+
+	document.Indent(2)
+	body, err := document.WriteToString()
+	if err != nil {
+		log.Error(err)
+		return "", errors.Wrap(err, "encoding device control request xml fail")
+	}
+	return body, nil
+
+}
+
 // WithFilePath create 'FilePath' item of xml by value
 func WithFilePath(value string) WithKeyValue {
 	return func(element *etree.Element) {
 		element.CreateElement("FilePath").CreateText(value)
+	}
+}
+
+// WithPTZCmd create 'PTZCmd' item of xml by value
+func WithPTZCmd(ptz string) WithKeyValue {
+	return func(element *etree.Element) {
+		element.CreateElement("PTZCmd").CreateText(ptz)
 	}
 }
 

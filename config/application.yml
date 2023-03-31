@@ -59,7 +59,7 @@ media:
     # [必修修改] zlm服务器的唯一id
     id: FQ3TF8yT83wh5Wvz
     # [必须修改] zlm服务器的内网IP
-    ip: 192.168.1.224
+    ip: 192.168.1.223
     # [必须修改] zlm服务器的http.port
     http-port: 8000
     # [可选] zlm服务器的hook.admin_params=secret

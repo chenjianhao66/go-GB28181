@@ -49,7 +49,19 @@ func installController(g *gin.Engine) *gin.Engine {
 	initMediaHookRoute(g.Group("/index/hook"))
 	initDeviceRoute(g.Group("/device"), store)
 	initChannelRoute(g.Group("/channel"), store)
+	initControlRoute(g.Group("/control"))
+	initPlayRoute(g.Group("/play"), store)
 	return g
+}
+
+func initPlayRoute(group *gin.RouterGroup, store storage.Factory) {
+	playController := controller.NewPlayController(store)
+	group.POST("/start/:deviceId/:channelId", playController.Play)
+}
+
+func initControlRoute(group *gin.RouterGroup) {
+	c := controller.NewControlController()
+	group.POST("ptz", c.ControlPTZ)
 }
 
 func initMediaHookRoute(group *gin.RouterGroup) {
