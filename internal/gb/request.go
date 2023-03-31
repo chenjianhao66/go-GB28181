@@ -16,12 +16,9 @@ import (
 )
 
 type (
-	SIPFactory struct{}
-	Sender     struct{}
+	sipFactory struct{}
+	sipSender  struct{}
 )
-
-// 发送请求之后的回调
-type successCallback func(sip.ClientTransaction, error)
 
 const (
 	letterBytes    = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -30,19 +27,19 @@ const (
 )
 
 var (
-	SipFactory SIPFactory
-	SipSender  Sender
+	sipRequestFactory sipFactory
+	sipRequestSender  sipSender
 )
 
 // TransmitRequest 发送sip协议请求
-func (sender Sender) TransmitRequest(req sip.Request) (sip.ClientTransaction, error) {
+func (sender sipSender) TransmitRequest(req sip.Request) (sip.ClientTransaction, error) {
 	log.Info("发送SIP Request消息，Method为: ", req.Method())
 	transaction, err := s.s.Request(req)
 	return transaction, err
 }
 
 // createMessageRequest 创建Message类型请求
-func (p SIPFactory) createMessageRequest(d model.Device, body string) sip.Request {
+func (f sipFactory) createMessageRequest(d model.Device, body string) sip.Request {
 	requestBuilder := sip.NewRequestBuilder()
 	requestBuilder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
 
@@ -68,7 +65,7 @@ func (p SIPFactory) createMessageRequest(d model.Device, body string) sip.Reques
 }
 
 // createInviteRequest 创建invite请求
-func (p SIPFactory) createInviteRequest(device model.Device, detail model.MediaDetail, channelId string, ssrc string, rtpPort int) sip.Request {
+func (f sipFactory) createInviteRequest(device model.Device, detail model.MediaDetail, channelId string, ssrc string, rtpPort int) sip.Request {
 	body := createSdpInfo(detail.Ip, channelId, ssrc, rtpPort)
 
 	requestBuilder := sip.NewRequestBuilder()
@@ -109,7 +106,7 @@ func (p SIPFactory) createInviteRequest(device model.Device, detail model.MediaD
 }
 
 // create bye request
-func (c SIPFactory) createByeRequest(channelId string, device model.Device, tx SipTX) (sip.Request, error) {
+func (f sipFactory) createByeRequest(channelId string, device model.Device, tx SipTX) (sip.Request, error) {
 
 	fromAddress := newFromAddress(newParams(map[string]string{"tag": tx.FromTag}))
 
