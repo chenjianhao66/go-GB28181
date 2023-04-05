@@ -40,4 +40,3 @@ help:
 	@echo "make clean 清理中间目标文件"
 	@echo "make test 执行测试case"
 	@echo "make check 格式化go代码"
-	@echo "make run 直接运行程序"
