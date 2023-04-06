@@ -1,0 +1,263 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Go-GB28181是一个基于GB28181-2016标准实现的网络视频平台，用 Go 语言实现，实现了 SIP 协议和信令服务器。",
+        "title": "Go-GB28181项目前端APi接口",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:18080",
+    "basePath": "/",
+    "paths": {
+        "/channel/{device}": {
+            "get": {
+                "description": "给定一个设备id，返回该设备下的所有通道信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "channel"
+                ],
+                "summary": "返回一个设备下的所有通道信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备id",
+                        "name": "device",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Channel"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/control/ptz": {
+            "get": {
+                "description": "根据传入的控制方向、控制速度等参数去控制摄像头的云台",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "control"
+                ],
+                "summary": "控制摄像头的云台",
+                "parameters": [
+                    {
+                        "description": "控制云台对象",
+                        "name": "deviceControl",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeviceControl"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "model.Account",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/list": {
+            "get": {
+                "description": "返回连接到该服务的所有设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "device"
+                ],
+                "summary": "返回连接到该服务的所有设备",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Device"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Channel": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "CivilCode": {
+                    "type": "string"
+                },
+                "DeviceId": {
+                    "type": "string"
+                },
+                "Manufacturer": {
+                    "type": "string"
+                },
+                "Model": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "Owner": {
+                    "type": "string"
+                },
+                "ParentID": {
+                    "type": "string"
+                },
+                "Parental": {
+                    "type": "string"
+                },
+                "RegisterWay": {
+                    "type": "string"
+                },
+                "SafetyWay": {
+                    "type": "string"
+                },
+                "Secrecy": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Device": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "expires": {
+                    "type": "string"
+                },
+                "firmware": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "keepalive": {
+                    "type": "string"
+                },
+                "manufacturer": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offline": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "registerTime": {
+                    "type": "string"
+                },
+                "transport": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeviceControl": {
+            "type": "object",
+            "properties": {
+                "channelId": {
+                    "description": "通道id",
+                    "type": "string"
+                },
+                "command": {
+                    "description": "控制的命令，取值为：left、right、down、up、downright、downleft、upright、upleft、zoomin、zoomout",
+                    "type": "string"
+                },
+                "deviceId": {
+                    "description": "设备id",
+                    "type": "string"
+                },
+                "horizonSpeed": {
+                    "description": "水平方向移动速度，取值：0-255",
+                    "type": "integer"
+                },
+                "verticalSpeed": {
+                    "description": "垂直方向移动速度，取值：0-255",
+                    "type": "integer"
+                },
+                "zoomSpeed": {
+                    "description": "变倍控制速度，取值：0-255",
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

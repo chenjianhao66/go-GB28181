@@ -16,6 +16,16 @@ func NewChannelController(factory storage.Factory) *ChannelController {
 	}
 }
 
+// List 返回一个设备下的所有通道
+//
+//	@Summary      返回一个设备下的所有通道信息
+//	@Description  给定一个设备id，返回该设备下的所有通道信息
+//	@Tags         channel
+//	@Accept       json
+//	@Produce      json
+//	@Param        device    path     string  true  "设备id"
+//	@Success      200  {array}   model.Channel
+//	@Router       /channel/{device} [get]
 func (c *ChannelController) List(ctx *gin.Context) {
 	d := ctx.Param("device")
 	if d == "" {

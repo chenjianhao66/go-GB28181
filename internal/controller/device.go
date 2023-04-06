@@ -20,6 +20,14 @@ func NewDeviceController(store storage.Factory) *DeviceController {
 	}
 }
 
+// List 返回所有设备
+// @Summary      返回连接到该服务的所有设备
+// @Description  返回连接到该服务的所有设备
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  model.Device
+// @Router       /device/list [get]
 func (d *DeviceController) List(c *gin.Context) {
 	list, err := d.srv.Devices().List()
 	if err != nil {

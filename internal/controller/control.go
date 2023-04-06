@@ -19,6 +19,18 @@ func NewControlController() *ControlController {
 	return &ControlController{}
 }
 
+//TODO 未完成
+
+// ControlPTZ 控制云台
+//
+//	@Summary      控制摄像头的云台
+//	@Description  根据传入的控制方向、控制速度等参数去控制摄像头的云台
+//	@Tags         control
+//	@Accept       json
+//	@Produce      json
+//	@Param        deviceControl body model.DeviceControl  true  "控制云台对象"
+//	@Success      200  {string}   "model.Account"
+//	@Router       /control/ptz [get]
 func (c ControlController) ControlPTZ(ctx *gin.Context) {
 	var data model.DeviceControl
 	if err := ctx.ShouldBindJSON(&data); err != nil {
