@@ -43,7 +43,7 @@ func (f sipFactory) createMessageRequest(d model.Device, body string) sip.Reques
 	requestBuilder := sip.NewRequestBuilder()
 	requestBuilder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
 
-	to := newTo(d.DeviceId, d.Ip)
+	to := newTo(d.DeviceId, d.Ip, d.Port)
 	requestBuilder.SetTo(to)
 	requestBuilder.SetRecipient(to.Uri)
 	requestBuilder.AddVia(newVia(d.Transport))
@@ -69,7 +69,7 @@ func (f sipFactory) createInviteRequest(device model.Device, detail model.MediaD
 	body := createSdpInfo(detail.Ip, channelId, ssrc, rtpPort)
 
 	requestBuilder := sip.NewRequestBuilder()
-	to := newTo(channelId, device.Ip)
+	to := newTo(channelId, device.Ip, device.Port)
 	requestBuilder.SetMethod(sip.INVITE)
 	requestBuilder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
 	requestBuilder.SetTo(to)
@@ -79,7 +79,7 @@ func (f sipFactory) createInviteRequest(device model.Device, detail model.MediaD
 	}
 	requestBuilder.SetRecipient(sipUri)
 	requestBuilder.AddVia(newVia("UDP"))
-	requestBuilder.SetContact(newTo(config.SIPId(), fmt.Sprintf("%s:%s", config.SIPAddress(), config.SIPPort())))
+	requestBuilder.SetContact(newTo(config.SIPId(), config.SIPAddress(), config.SIPPort()))
 	contentType := sip.ContentType(contentTypeSDP)
 	requestBuilder.SetContentType(&contentType)
 	requestBuilder.SetBody(body)
@@ -110,7 +110,7 @@ func (f sipFactory) createByeRequest(channelId string, device model.Device, tx S
 
 	fromAddress := newFromAddress(newParams(map[string]string{"tag": tx.FromTag}))
 
-	toAddress := newTo(channelId, device.Ip)
+	toAddress := newTo(channelId, device.Ip, device.Port)
 	toAddress.Params = newParams(map[string]string{"tag": tx.ToTag})
 
 	via := newVia(device.Transport)
@@ -128,7 +128,7 @@ func (f sipFactory) createByeRequest(channelId string, device model.Device, tx S
 		SetTo(toAddress).
 		SetMethod(sip.BYE).
 		AddVia(via).
-		SetContact(newTo(config.SIPId(), fmt.Sprintf("%s:%s", config.SIPAddress(), config.SIPPort()))).
+		SetContact(newTo(config.SIPId(), config.SIPAddress(), config.SIPPort())).
 		SetCallID(&callID).
 		SetSeqNo(cast.ToUint(ceq)).
 		SetRecipient(&sip.SipUri{
@@ -154,11 +154,13 @@ func newFromAddress(params sip.Params) *sip.Address {
 	}
 }
 
-func newTo(user, host string) *sip.Address {
+func newTo(user, host, port string) *sip.Address {
+	p := sip.Port(cast.ToUint16(port))
 	return &sip.Address{
 		Uri: &sip.SipUri{
 			FUser: sip.String{Str: user},
 			FHost: host,
+			FPort: &p,
 		},
 	}
 }
