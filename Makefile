@@ -1,23 +1,28 @@
 BIN_FILE=go-GB28181
+RELEASE_FOLDER=release
+WIN_APPENDIX=.exe
 
 .PHONY: all
 all: check build
 
 .PHONY: setup
 setup:
-	mkdir -p build/linux
-	mkdir -p build/darwin
-	mkdir -p build/windows
+	mkdir -p ${RELEASE_FOLDER}/linux
+	mkdir -p ${RELEASE_FOLDER}/darwin
+	mkdir -p ${RELEASE_FOLDER}/windows
+	cp -r ./config ${RELEASE_FOLDER}/linux
+	cp -r ./config ${RELEASE_FOLDER}/darwin
+	cp -r ./config ${RELEASE_FOLDER}/windows
 
 .PHONY: build
 build: setup
-	@GOARCH=amd64 GOOS=linux go build -o "./build/linux/${BIN_FILE}"
-	@GOARCH=amd64 GOOS=darwin go build -o "./build/darwin/${BIN_FILE}"
-	@GOARCH=amd64 GOOS=windows go build -o "./build/windows/${BIN_FILE}"
+	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=linux go build -o "./${RELEASE_FOLDER}/linux/${BIN_FILE}"
+	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=darwin go build -o "./${RELEASE_FOLDER}/darwin/${BIN_FILE}"
+	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=windows go build -o "./${RELEASE_FOLDER}/windows/${BIN_FILE}${WIN_APPENDIX}"
 
 .PHONY: clean
 clean:
-	@rm -rf ./build
+	@rm -rf ./${RELEASE_FOLDER}
 
 .PHONY: test
 test:
@@ -28,10 +33,6 @@ check:
 	@go fmt ./
 	@go vet ./
 
-.PHONY: run
-run:
-	./"${BIN_FILE}"
-
 .PHONY: help
 help:
 	@echo "make 格式化go代码 并编译生成二进制文件"
@@ -39,4 +40,3 @@ help:
 	@echo "make clean 清理中间目标文件"
 	@echo "make test 执行测试case"
 	@echo "make check 格式化go代码"
-	@echo "make run 直接运行程序"

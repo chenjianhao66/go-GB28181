@@ -16,3 +16,6 @@
 
 .idea/
 .log/
+
+# Binary build folder
+release/
