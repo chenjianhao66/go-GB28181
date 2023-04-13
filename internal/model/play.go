@@ -7,27 +7,54 @@ import (
 
 // StreamInfo 流信息
 type StreamInfo struct {
+	// 承载该流信息的流媒体id
 	MediaServerId string `json:"mediaServerId"`
-	App           string `json:"app"`
-	Ip            string `json:"ip"`
-	DeviceID      string `json:"deviceID"`
-	ChannelId     string `json:"channelId"`
-	Stream        string `json:"stream"`
-	Rtmp          string `json:"rtmp"`
-	Rtsp          string `json:"rtsp"`
-	Flv           string `json:"flv"`
-	HttpsFlv      string `json:"httpsFlv"`
+
+	// 应用名
+	App string `json:"app"`
+
+	// ip地址
+	Ip string `json:"ip"`
+
+	// 输出流的设备id
+	DeviceID string `json:"deviceID"`
+
+	// 输出流的设备通道id
+	ChannelId string `json:"channelId"`
+
+	// 流名称
+	Stream string `json:"stream"`
+
+	// rtmp地址
+	Rtmp string `json:"rtmp"`
+
+	// rtsp地址
+	Rtsp string `json:"rtsp"`
+
+	// flv地址
+	Flv string `json:"flv"`
+
+	// https-flv地址
+	HttpsFlv string `json:"httpsFlv"`
 	//WSFly         string `json:"WSFly"`
 	//WSSFly        string `json:"WSSFly"`
+
+	// fmp4地址
 	Fmp4 string `json:"fmp4"`
 	//HttpsFmp4     string `json:"httpsFmp4"`
 	//WSFmpt4       string `json:"WSFmpt4"`
+
+	// hls地址
 	Hls string `json:"hls"`
 	//HttpsHls      string `json:"httpsHls"`
 	//WsHls         string `json:"wsHls"`
+
+	// ts地址
 	Ts string `json:"ts"`
 	//HttpsTs       string `json:"httpsTs"`
 	//WebsocketTs   string `json:"websocketTs"`
+
+	// 该流的ssrc
 	Ssrc string `json:"ssrc"`
 }
 

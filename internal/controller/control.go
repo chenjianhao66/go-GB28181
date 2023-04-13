@@ -27,7 +27,7 @@ func NewControlController() *ControlController {
 //	@Accept       json
 //	@Produce      json
 //	@Param        控制云台对象 body model.DeviceControl  true  "控制云台对象"
-//	@Success      200  {string}   "model.Account"
+//	@Success      200  {string}   "ok"
 //	@Router       /control/ptz [get]
 func (c ControlController) ControlPTZ(ctx *gin.Context) {
 	var data model.DeviceControl
