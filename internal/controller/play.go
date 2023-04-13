@@ -5,7 +5,6 @@ import (
 	srv "github.com/chenjianhao66/go-GB28181/internal/service"
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // PlayController 设备控制器
@@ -26,8 +25,8 @@ func (p *PlayController) Play(c *gin.Context) {
 	streamInfo, err := p.srv.Play().Play(deviceId, channelId)
 	if err != nil {
 		log.Errorf("%+v", err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+		newResponse(c).fail(err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, streamInfo)
+	newResponse(c).successWithAny(streamInfo)
 }

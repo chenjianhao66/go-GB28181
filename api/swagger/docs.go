@@ -25,15 +25,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/channel/{device}": {
+        "/channel/list/{device}": {
             "get": {
                 "description": "给定一个设备id，返回该设备下的所有通道信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "channel"
                 ],

@@ -108,10 +108,8 @@ info:
   title: Go-GB28181项目前端APi接口
   version: "1.0"
 paths:
-  /channel/{device}:
+  /channel/list/{device}:
     get:
-      consumes:
-      - application/json
       description: 给定一个设备id，返回该设备下的所有通道信息
       parameters:
       - description: 设备id
@@ -119,8 +117,6 @@ paths:
         name: device
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK

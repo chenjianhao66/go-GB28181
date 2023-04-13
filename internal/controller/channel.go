@@ -20,29 +20,21 @@ func NewChannelController(factory storage.Factory) *ChannelController {
 //
 //	@Summary      返回一个设备下的所有通道信息
 //	@Description  给定一个设备id，返回该设备下的所有通道信息
-//	@Tags         channel
-//	@Accept       json
-//	@Produce      json
+//	@Tags         设备通道
 //	@Param        device    path     string  true  "设备id"
 //	@Success      200  {array}   model.Channel
-//	@Router       /channel/{device} [get]
+//	@Router       /channel/list/{device} [get]
 func (c *ChannelController) List(ctx *gin.Context) {
 	d := ctx.Param("device")
 	if d == "" {
-		ctx.JSON(500, gin.H{
-			"msg": "device 参数是必须的",
-		})
+		newResponse(ctx).fail("device 参数是必须的")
 		return
 	}
 
 	list, err := c.srv.Channel().List(d)
 	if err != nil {
-		ctx.JSON(500, gin.H{
-			"msg": "查询数据库出错",
-		})
+		newResponse(ctx).fail("查询数据库出错")
 		return
 	}
-	ctx.JSON(200, gin.H{
-		"data": list,
-	})
+	newResponse(ctx).successWithAny(list)
 }
