@@ -100,7 +100,12 @@ func getSN() string {
 // GetCmdTypeFromXML 根据body获取XML配置文件中的根元素
 func GetCmdTypeFromXML(body string) (key string, err error) {
 	decoder := xml.NewDecoder(strings.NewReader(body))
-
+	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		if charset == "GB2312" {
+			return transform.NewReader(input, simplifiedchinese.GB18030.NewDecoder()), nil
+		}
+		return input, nil
+	}
 	var (
 		isRoot, isCmdType = false, false
 		root, cmdType     string
