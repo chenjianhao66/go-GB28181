@@ -9,6 +9,8 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/storage/mysql"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 	"time"
 )
@@ -51,7 +53,12 @@ func installController(g *gin.Engine) *gin.Engine {
 	initChannelRoute(g.Group("/channel"), store)
 	initControlRoute(g.Group("/control"))
 	initPlayRoute(g.Group("/play"), store)
+	initSwaggerRoute(g.Group("/"))
 	return g
+}
+
+func initSwaggerRoute(group *gin.RouterGroup) {
+	group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 func initPlayRoute(group *gin.RouterGroup, store storage.Factory) {

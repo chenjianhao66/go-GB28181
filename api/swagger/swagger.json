@@ -1,0 +1,380 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Go-GB28181是一个基于GB28181-2016标准实现的网络视频平台，用 Go 语言实现，实现了 SIP 协议和信令服务器。",
+        "title": "Go-GB28181项目前端APi接口",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:18080",
+    "basePath": "/",
+    "paths": {
+        "/channel/list/{device}": {
+            "get": {
+                "description": "给定一个设备id，返回该设备下的所有通道信息",
+                "tags": [
+                    "设备通道"
+                ],
+                "summary": "返回一个设备下的所有通道信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备id",
+                        "name": "device",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Channel"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/control/ptz": {
+            "get": {
+                "description": "根据传入的控制方向、控制速度等参数去控制摄像头的云台",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备控制"
+                ],
+                "summary": "控制摄像头的云台",
+                "parameters": [
+                    {
+                        "description": "控制云台对象",
+                        "name": "控制云台对象",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeviceControl"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/list": {
+            "get": {
+                "description": "返回连接到该服务的所有设备",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "设备"
+                ],
+                "summary": "返回连接到该服务的所有设备",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Device"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/play/start/{deviceId}/{channelId}": {
+            "post": {
+                "description": "根据设备id、通道id去播放视频",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "播放"
+                ],
+                "summary": "播放设备的通道视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "设备id",
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "通道id",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StreamInfo"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Channel": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "description": "安装地址",
+                    "type": "string"
+                },
+                "CivilCode": {
+                    "description": "行政区域",
+                    "type": "string"
+                },
+                "DeviceId": {
+                    "description": "设备唯一sipid",
+                    "type": "string"
+                },
+                "Manufacturer": {
+                    "description": "设备制造厂商",
+                    "type": "string"
+                },
+                "Model": {
+                    "description": "设备型号",
+                    "type": "string"
+                },
+                "Name": {
+                    "description": "通道名称",
+                    "type": "string"
+                },
+                "Owner": {
+                    "description": "设备归属",
+                    "type": "string"
+                },
+                "ParentID": {
+                    "description": "父设备/区域/系统ID",
+                    "type": "string"
+                },
+                "Parental": {
+                    "description": "是否有子设备，1有、0没有",
+                    "type": "string"
+                },
+                "RegisterWay": {
+                    "description": "注册方式，1 标准认证注册模式 、2 基于口令的双向认证模式、3 基于数字证书的双向认证注册模式",
+                    "type": "string"
+                },
+                "SafetyWay": {
+                    "description": "信令安全模式，0不采用、2 S/MIME签名方式、3 S/MIME加密他签名同时采用方式、4 数字摘要方式",
+                    "type": "string"
+                },
+                "Secrecy": {
+                    "description": "保密属性，0不涉密、1涉密",
+                    "type": "string"
+                },
+                "Status": {
+                    "description": "设备状态",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Device": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "description": "设备的sip唯一id",
+                    "type": "string"
+                },
+                "domain": {
+                    "description": "设备的sip域名",
+                    "type": "string"
+                },
+                "expires": {
+                    "description": "心跳过期时间",
+                    "type": "string"
+                },
+                "firmware": {
+                    "description": "固件版本",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ip": {
+                    "description": "ip地址",
+                    "type": "string"
+                },
+                "keepalive": {
+                    "description": "上次心跳时间",
+                    "type": "string"
+                },
+                "manufacturer": {
+                    "description": "制造厂商",
+                    "type": "string"
+                },
+                "model": {
+                    "description": "设备型号",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "设备名",
+                    "type": "string"
+                },
+                "offline": {
+                    "description": "是否在线",
+                    "type": "integer"
+                },
+                "port": {
+                    "description": "传输端口",
+                    "type": "string"
+                },
+                "registerTime": {
+                    "description": "注册时间",
+                    "type": "string"
+                },
+                "transport": {
+                    "description": "传输模式",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeviceControl": {
+            "type": "object",
+            "properties": {
+                "channelId": {
+                    "description": "通道id",
+                    "type": "string"
+                },
+                "command": {
+                    "description": "控制的命令，取值为：left、right、down、up、downright、downleft、upright、upleft、zoomin、zoomout",
+                    "type": "string"
+                },
+                "deviceId": {
+                    "description": "设备id",
+                    "type": "string"
+                },
+                "horizonSpeed": {
+                    "description": "水平方向移动速度，取值：0-255",
+                    "type": "integer"
+                },
+                "verticalSpeed": {
+                    "description": "垂直方向移动速度，取值：0-255",
+                    "type": "integer"
+                },
+                "zoomSpeed": {
+                    "description": "变倍控制速度，取值：0-255",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.StreamInfo": {
+            "type": "object",
+            "properties": {
+                "app": {
+                    "description": "应用名",
+                    "type": "string"
+                },
+                "channelId": {
+                    "description": "输出流的设备通道id",
+                    "type": "string"
+                },
+                "deviceID": {
+                    "description": "输出流的设备id",
+                    "type": "string"
+                },
+                "flv": {
+                    "description": "flv地址",
+                    "type": "string"
+                },
+                "fmp4": {
+                    "description": "fmp4地址",
+                    "type": "string"
+                },
+                "hls": {
+                    "description": "hls地址",
+                    "type": "string"
+                },
+                "httpsFlv": {
+                    "description": "https-flv地址",
+                    "type": "string"
+                },
+                "ip": {
+                    "description": "ip地址",
+                    "type": "string"
+                },
+                "mediaServerId": {
+                    "description": "承载该流信息的流媒体id",
+                    "type": "string"
+                },
+                "rtmp": {
+                    "description": "rtmp地址",
+                    "type": "string"
+                },
+                "rtsp": {
+                    "description": "rtsp地址",
+                    "type": "string"
+                },
+                "ssrc": {
+                    "description": "该流的ssrc",
+                    "type": "string"
+                },
+                "stream": {
+                    "description": "流名称",
+                    "type": "string"
+                },
+                "ts": {
+                    "description": "ts地址",
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}
