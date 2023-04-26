@@ -7,6 +7,8 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 	"io"
 	"math/rand"
 	"strings"
