@@ -2,6 +2,7 @@ package gb
 
 import (
 	"encoding/xml"
+	"github.com/chenjianhao66/go-GB28181/internal/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/parser"
 	"github.com/ghettovoice/gosip/sip"
@@ -38,5 +39,9 @@ func keepaliveHandler(req sip.Request, tx sip.ServerTransaction) {
 	if err := storage.deviceKeepalive(device.ID); err != nil {
 		log.Debugf("{%d,%s}更新心跳失败：%s", device.ID, device.DeviceId, err)
 	}
+	if err := cron.ResetTime(device.DeviceId, cron.TaskKeepLive); err != nil {
+		log.Errorf("更新心跳检测任务失败: %s", device.DeviceId, err)
+	}
+
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
 }

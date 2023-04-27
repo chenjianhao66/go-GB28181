@@ -1,6 +1,7 @@
 package gb
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/model"
 	st "github.com/chenjianhao66/go-GB28181/internal/storage"
@@ -46,6 +47,12 @@ func (d *data) deviceOnline(device model.Device) error {
 		device.Offline = 1
 		err = d.s.Devices().Update(device)
 	}
+
+	err = cron.StartTask(device.DeviceId, cron.TaskKeepLive, 10*time.Second, func() {
+		device.Offline = 0
+		d.s.Devices().Save(device)
+	})
+
 	return err
 }
 
