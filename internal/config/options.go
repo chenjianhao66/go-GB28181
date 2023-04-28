@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 )
 
@@ -37,6 +38,6 @@ func loadConfig() {
 	viper.SetConfigType("yml")
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		panic("load config fail,please check your config file whether in config/ in the directory")
+		fmt.Print("load config fail,please check your config file whether in config/ in the directory")
 	}
 }

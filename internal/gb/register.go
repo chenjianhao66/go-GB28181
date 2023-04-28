@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/parser"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
 	"github.com/ghettovoice/gosip/sip"
 	"net/http"
 )
@@ -51,6 +52,9 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		if offlineFlag {
 			// 注销请求
 			_ = storage.deviceOffline(device)
+			if err := cron.StopTask(device.DeviceId, cron.TaskKeepLive); err != nil {
+				log.Errorf("停止心跳检测任务失败: %s", device.DeviceId)
+			}
 		} else {
 			// 注册请求
 			if err := storage.deviceOnline(device); err != nil {
