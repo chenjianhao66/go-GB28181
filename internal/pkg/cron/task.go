@@ -78,8 +78,8 @@ func StopTask(deviceId string, taskType TaskType) error {
 
 func StartTask(deviceId string, taskType TaskType, duration time.Duration, runFunc runFunc) error {
 	if taskList.getOneTask(deviceId, taskType) != nil {
-		log.Errorf("task %+v already exists!", taskType)
-		return errors.New(fmt.Sprintf("Start task error with task type: %+v, deviceId: %+v", taskType, deviceId))
+		log.Errorf("任务 %+v 已经存在！", taskType)
+		return errors.New(fmt.Sprintf("开启任务，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
 	}
 
 	t, err := createTask(deviceId, taskType, duration, runFunc)
@@ -105,13 +105,13 @@ func ResetTime(deviceId string, taskType TaskType) error {
 
 func getTask(deviceId string, taskType TaskType) (task, error) {
 	if taskList.getAllTasksForOneDevice(deviceId) == nil {
-		log.Errorf("task %+v for deviceId: %+v not exists!", taskType, deviceId)
-		return nil, errors.New(fmt.Sprintf("Stop task error with task type: %+v, deviceId: %+v", taskType, deviceId))
+		log.Errorf("任务 %+v 设备ID: %+v 不存在!", taskType, deviceId)
+		return nil, errors.New(fmt.Sprintf("停止任务，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
 	}
 
 	if taskList.getOneTask(deviceId, taskType) == nil {
-		log.Errorf("task %+v for deviceId: %+v not exists!", taskType, deviceId)
-		return nil, errors.New(fmt.Sprintf("Stop task error with task type: %+v, deviceId: %+v", taskType, deviceId))
+		log.Errorf("任务 %+v 设备ID: %+v 不存在!", taskType, deviceId)
+		return nil, errors.New(fmt.Sprintf("停止任务，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
 	}
 
 	t := taskList.getOneTask(deviceId, taskType)
@@ -121,7 +121,7 @@ func getTask(deviceId string, taskType TaskType) (task, error) {
 
 func createTask(deviceId string, taskType TaskType, duration time.Duration, runFunc runFunc) (task, error) {
 	if taskList.getOneTask(deviceId, taskType) != nil {
-		return nil, errors.New(fmt.Sprintf("error get task type object, task type: %+v", taskType))
+		return nil, errors.New(fmt.Sprintf("获取任务对象失败, 任务类型: %+v", taskType))
 	}
 
 	taskList.initTaskList(deviceId)
@@ -139,8 +139,8 @@ func createTask(deviceId string, taskType TaskType, duration time.Duration, runF
 		taskList.putOneTask(deviceId, taskType, t)
 
 	default:
-		log.Errorf("Unsupported task type", taskType)
-		return nil, errors.New(fmt.Sprintf("Unsupported task type with task type: %+v, deviceId: %+v",
+		log.Errorf("不支持的任务类型：", taskType)
+		return nil, errors.New(fmt.Sprintf("不支持的任务类型: %+v, 设备ID: %+v",
 			taskType, deviceId))
 	}
 

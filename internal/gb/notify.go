@@ -40,7 +40,7 @@ func keepaliveHandler(req sip.Request, tx sip.ServerTransaction) {
 		log.Debugf("{%d,%s}更新心跳失败：%s", device.ID, device.DeviceId, err)
 	}
 	if err := cron.ResetTime(device.DeviceId, cron.TaskKeepLive); err != nil {
-		log.Errorf("更新心跳检测任务失败: %s", device.DeviceId, err)
+		log.Errorf("{%d,%s}更新心跳失败：%s", device.ID, device.DeviceId, err)
 	}
 
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
