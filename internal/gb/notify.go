@@ -2,9 +2,9 @@ package gb
 
 import (
 	"encoding/xml"
-	"github.com/chenjianhao66/go-GB28181/internal/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/log"
 	"github.com/chenjianhao66/go-GB28181/internal/parser"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
 	"github.com/ghettovoice/gosip/sip"
 	"net/http"
 )

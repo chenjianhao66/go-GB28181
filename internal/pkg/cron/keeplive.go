@@ -29,11 +29,9 @@ func (k *keepLiveTask) refresh() {
 }
 
 func (k *keepLiveTask) watch() {
-	select {
-	case <-k.timer.C:
-		log.Warnf("Device offline! DeviceId: %+v, at: %+v", k.deviceId, time.Now().GoString())
-		k.runFunc()
-		delete(taskList[k.deviceId], TaskKeepLive)
-		return
-	}
+	<-k.timer.C
+	log.Warnf("Device offline! DeviceId: %s, at: %s", k.deviceId, time.Now().String())
+	k.runFunc()
+	taskList.deleteOneTask(k.deviceId, TaskKeepLive)
+	return
 }
