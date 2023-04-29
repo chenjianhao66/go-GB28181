@@ -72,7 +72,7 @@ func New(opts *config.MySQLOptions) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(opts.MaxOpenConnections)
 
 	// 设置最多可重用连接
-	sqlDB.SetConnMaxLifetime(opts.MaxConnectionLifeTime)
+	sqlDB.SetConnMaxLifetime(time.Duration(opts.MaxConnectionLifeTime) * time.Second)
 
 	// 设置最多空闲连接池里的最多连接数
 	sqlDB.SetMaxIdleConns(opts.MaxIdleConnections)

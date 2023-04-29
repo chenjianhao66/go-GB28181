@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/agiledragon/gomonkey v2.0.2+incompatible
 	github.com/beevik/etree v1.1.0
+	github.com/fatih/color v1.13.0
 	github.com/ghettovoice/gosip v0.0.0-20221216110459-a49cda0b8a0f
 	github.com/gin-gonic/gin v1.9.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
@@ -15,6 +16,8 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/spf13/cast v1.5.0
+	github.com/spf13/cobra v1.7.0
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
@@ -51,6 +54,7 @@ require (
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -74,7 +78,6 @@ require (
 	github.com/smartystreets/assertions v1.2.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tevino/abool v0.0.0-20170917061928-9b9efcf221b5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
