@@ -1,7 +1,7 @@
 package cron
 
 import (
-	"github.com/chenjianhao66/go-GB28181/internal/log"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"time"
 )
 

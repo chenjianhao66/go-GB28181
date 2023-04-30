@@ -2,7 +2,7 @@ package cron
 
 import (
 	"fmt"
-	"github.com/chenjianhao66/go-GB28181/internal/log"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/pkg/errors"
 	"sync"
 	"time"
