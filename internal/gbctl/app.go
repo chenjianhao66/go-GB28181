@@ -1,8 +1,8 @@
 package gbctl
 
 import (
-	"fmt"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/app"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
@@ -27,8 +27,9 @@ func NewApp(basename string) *app.App {
 
 func run(opt *ctlOption) app.RunFunc {
 	return func(basename string) error {
-		fmt.Println("exec gbctl success....")
-		fmt.Println(cast.ToString(viper.Get("sip.id")))
+		log.Init(opt.LogOption)
+		log.Info("exec gbctl success....")
+		log.Info(cast.ToString(viper.Get("sip.id")))
 		return nil
 	}
 }

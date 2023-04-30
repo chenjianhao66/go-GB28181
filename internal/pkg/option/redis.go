@@ -22,7 +22,6 @@ func NewRedisOptions() *RedisOptions {
 		Host:               "127.0.0.1",
 		Port:               6379,
 		Database:           0,
-		Password:           "root",
 		MaxRetries:         3,
 		PoolSize:           50,
 		MinIdleConnections: 50,

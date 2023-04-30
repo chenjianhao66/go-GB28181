@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "github.com/chenjianhao66/go-GB28181/api/swagger"
+	"github.com/chenjianhao66/go-GB28181/internal/gbserver"
 )
 
 // @title           Go-GB28181项目前端APi接口
@@ -24,15 +25,5 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-	println(banner)
-	//ListenAndServeWithSignal()
+	gbserver.NewApp("gbserver").Run()
 }
-
-var banner = `
-  _____              _____ ____ ___   ___  __  ___  __ 
- / ____|            / ____|  _ \__ \ / _ \/_ |/ _ \/_ |
-| |  __  ___ ______| |  __| |_) | ) | (_) || | (_) || |
-| | |_ |/ _ \______| | |_ |  _ < / / > _ < | |> _ < | |
-| |__| | (_) |     | |__| | |_) / /_| (_) || | (_) || |
- \_____|\___/       \_____|____/____|\___/ |_|\___/ |_|
-`

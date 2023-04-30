@@ -19,7 +19,7 @@ func NewLogOptions() *LogOptions {
 	return &LogOptions{
 		Level:      "info",
 		Path:       "./log",
-		File:       "gp-gb28181.log",
+		File:       "go-gb28181.log",
 		MaxSize:    1,
 		MaxBackups: 30,
 		MaxAge:     30,

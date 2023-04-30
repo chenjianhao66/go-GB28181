@@ -1,0 +1,84 @@
+#[可选] WVP监听的HTTP端口, 网页和接口调用都是这个端口
+server:
+    port: 18080
+
+mysql:
+    host: 106.12.119.240
+    port: 3306
+    username: root
+    password: root
+    database: gb
+    max-idle-connections: 100
+    max-open-connections: 100
+    max-connection-life-time: 10
+    log-level: 1
+
+redis:
+    host: 106.12.119.240
+    port: 6379
+    database: 0
+    username: root
+    # password: 123456
+
+    # 最大重连次数，默认值3，-1则为放弃重试
+    max-retries: 3
+
+    # 默认是 runtime.GOMAXPROCS * 10
+    pool-size: 50
+
+    # 最小空闲连接数，默认值50
+    min-idle-connections: 50
+
+    # 最大空闲连接数，默认值100
+    max-idle-connections: 100
+
+    # 可以重复使用连接的最长时间，0代表不关闭空闲连接，默认值0
+    conn-max-life-time: 0
+
+# 作为 28181 服务器的配置
+sip:
+    # [必须修改] 本机的IP
+    ip: 127.0.0.1
+
+    # [可选] 28181服务监听的端口
+    port: 5060
+
+    # 根据国标6.1.2中规定，domain宜采用ID统一编码的前十位编码。国标附录D中定义前8位为中心编码（由省级、市级、区级、基层编号组成，参照GB/T 2260-2007）
+    # 后两位为行业编码，定义参照附录D.3
+    # 3701020049标识山东济南历下区 信息行业接入
+    # [可选]
+    domain: 4401020049
+
+    # [可选]
+    id: 44010200492000000001
+
+    # [可选] 默认设备认证密码，后续扩展使用设备单独密码, 移除密码将不进行校验
+    password: admin123
+    user-agent: gb
+
+
+media:
+    # [必修修改] zlm服务器的唯一id
+    id: FQ3TF8yT83wh5Wvz
+    # [必须修改] zlm服务器的内网IP
+    ip: 192.168.1.223
+    # [必须修改] zlm服务器的http.port
+    http-port: 8000
+    # [可选] zlm服务器的hook.admin_params=secret
+    secret: 035c73f7-bb6b-4889-a715-d9eb2d1925cc
+
+# [可选] 日志配置, 一般不需要改
+log:
+    # 日志级别
+    level: info
+    # 日志路径
+    path: ./log
+    # 日志文件名称
+    file: gbserver.log
+    # 日志文件在轮换之前的最大大小，M为单位
+    maxSize: 1
+    # 是要保留的最大旧日志文件数。默认是保留所有旧的日志文件
+    maxBackups: 30
+    # 是根据文件名中编码的时间戳保留旧日志文件的最大天数。
+    maxAge: 30
+
