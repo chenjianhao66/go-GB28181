@@ -30,20 +30,26 @@ go-GB28181是一个基于GB28181-2016标准实现的网络视频平台，用 Go 
 # 项目目录结构
 
 ```
-├── config                   ## 配置文件目录以及模板
+├── api                             ## 自动生成的接口文档
+│   └── swagger                     
+├── cmd                             ## 组件的main函数
+│   ├── gbctl                       ## gb视频平台服务的启动函数
+│   └── gbserver                    ## gb命令行客户端的启动函数
+├── config                          ## 存放各个组件的配置文件，以组件名为文件名
+│   ├── application-dev.yml
+│   ├── gbctl.yml
+│   └── gbserver.yml
+├── docs                            ## 开发文档和用户文档
+│   ├── develop
+│   ├── guide
+│   └── images
 ├── go.mod
 ├── go.sum
-├── internal
-│   ├── config         ## 配置文件解析
-│   ├── controller     ## web控制器
-│   ├── gb             ## 国标协议处理
-│   ├── log            ## log
-│   ├── model          ## 数据库实体
-│   ├── parser         ## xml、json等解析逻辑
-│   ├── server         ## 集成api、sip等服务
-│   ├── service        ## mvc中的service层
-│   ├── storage        ## mvc中的dao曾
-│   └── util           ## 工具包
+├── internal        
+│   ├── config                      ## 废弃，后续删除
+│   ├── gbctl                       ## gb命令行客户端的实现
+│   ├── gbserver                    ## gb视频平台的实现
+│   └── pkg                         ## 公共包
 ├── main.go
 ├── Makefile
 └── README.md
