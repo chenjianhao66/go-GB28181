@@ -29,7 +29,11 @@ func run(opt *ctlOption) app.RunFunc {
 	return func(basename string) error {
 		log.Init(opt.LogOption)
 		log.Info("exec gbctl success....")
-		log.Info(cast.ToString(viper.Get("sip.id")))
+		log.Info(cast.ToString(viper.GetString("sip.id")))
+		viper.New()
+		strings := viper.GetStringSlice("client.channel.list")
+
+		log.Info(strings)
 		return nil
 	}
 }
