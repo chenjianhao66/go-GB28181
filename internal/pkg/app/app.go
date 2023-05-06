@@ -116,6 +116,10 @@ func (a *App) launch(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if a.banner != "" {
+		println(a.banner)
+	}
+
 	if a.runFunc != nil {
 		return a.runFunc(a.basename)
 	}

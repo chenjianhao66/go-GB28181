@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 )
 
@@ -15,7 +14,7 @@ type MediaOptions struct {
 func newMediaOption() *MediaOptions {
 	m := new(MediaOptions)
 	err := viper.UnmarshalKey("media", m)
-	fmt.Printf("%+v", m)
+	//fmt.Printf("%+v", m)
 	if err != nil {
 		panic("parser config 'media item fail:" + err.Error())
 	}

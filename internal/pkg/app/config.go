@@ -27,6 +27,8 @@ func addConfigFlag(basename string, fs *pflag.FlagSet) {
 			viper.SetConfigFile(configFile)
 		} else {
 			viper.AddConfigPath(".")
+			viper.AddConfigPath("./config")
+			viper.AddConfigPath("../config")
 
 			viper.SetConfigName(basename)
 		}
