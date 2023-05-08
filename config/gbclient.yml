@@ -75,7 +75,7 @@ log:
     # 日志路径
     path: ./log
     # 日志文件名称
-    file: gbctl.log
+    file: gbclient.log
     # 日志文件在轮换之前的最大大小，M为单位
     maxSize: 1
     # 是要保留的最大旧日志文件数。默认是保留所有旧的日志文件

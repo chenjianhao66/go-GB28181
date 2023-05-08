@@ -1,4 +1,4 @@
-package gbctl
+package gbclient
 
 import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/app"
@@ -28,7 +28,7 @@ func NewApp(basename string) *app.App {
 func run(opt *ctlOption) app.RunFunc {
 	return func(basename string) error {
 		log.Init(opt.LogOption)
-		log.Info("exec gbctl success....")
+		log.Info("exec gbclient success....")
 		log.Info(cast.ToString(viper.GetString("sip.id")))
 		viper.New()
 		strings := viper.GetStringSlice("client.channel.list")

@@ -1,4 +1,4 @@
-package gbctl
+package gbclient
 
 import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
@@ -20,7 +20,7 @@ func newCTLOption() *ctlOption {
 }
 
 func (c *ctlOption) Flags() (fss *pflag.FlagSet) {
-	fss = pflag.NewFlagSet("gbctl", pflag.ExitOnError)
+	fss = pflag.NewFlagSet("gbclient", pflag.ExitOnError)
 	c.Sip.AddFlags(fss)
 	c.LogOption.AddFlags(fss)
 	c.ClientOption.AddFlags(fss)
@@ -39,8 +39,8 @@ type ClientOptions struct {
 	HeartbeatInterval   int64   `json:"heartbeatInterval,omitempty" mapstructure:"heartbeat-interval"`
 	MaxHeartbeatTimeout int     `json:"maxHeartbeatTimeout,omitempty" mapstructure:"max-heartbeat-timeout"`
 	Transport           string  `json:"transport,omitempty" mapstructure:"transport"`
-	Alert               Alert   `json:"alert" mapstructure:"alert"`
-	Channel             Channel `json:"channel" mapstructure:"channel"`
+	Alert               Alert   `json:"alert" mapstructure:"alert" yaml:"alert"`
+	Channel             Channel `json:"channel" mapstructure:"channel" yaml:"channel"`
 }
 
 func newClientOption() *ClientOptions {
@@ -73,11 +73,11 @@ func (c *ClientOptions) AddFlags(fss *pflag.FlagSet) {
 }
 
 type Alert struct {
-	Num  int      `json:"num,omitempty" mapstructure:"num"`
-	List []string `json:"list,omitempty" mapstructure:"list"`
+	Num  int    `json:"num,omitempty" mapstructure:"num"`
+	List string `json:"list,omitempty" mapstructure:"number" yaml:"number"`
 }
 
 type Channel struct {
-	Num  int      `json:"num,omitempty" mapstructure:"num"`
-	List []string `json:"list,omitempty" mapstructure:"list"`
+	Num  int      `json:"num,omitempty" mapstructure:"num" yaml:"num"`
+	List []string `json:"list,omitempty" mapstructure:"list" yaml:"list"`
 }
