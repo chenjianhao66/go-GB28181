@@ -55,6 +55,39 @@ func DeviceCatalogQuery(device model.Device) {
 	}
 }
 
+func DeviceBasicConfig(req *model.DeviceBasicConfigDto) error {
+	xml, err := parser.CreateControlXml(parser.DeviceConfig, req.DeviceId, parser.WithBasicParams(req.Name, req.Expiration, req.HeartBeatInterval, req.HeartBeatCount))
+	if err != nil {
+		return errors.Wrap(err, "创建设备配置请求失败")
+	}
+	request := sipRequestFactory.createMessageRequest(req.Device, xml)
+	log.Debugf("查询设备基本配置请求：\n%s", request)
+	tx, err := c.server.sendRequest(request)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	response := getResponse(tx)
+	if response.IsSuccess() {
+
+	}
+	return nil
+}
+
+func DeviceBasicConfigQuery(d model.Device) error {
+	xml, err := parser.CreateQueryXML(parser.ConfigDownloadCmdType, d.DeviceId, parser.WithCustomKV("ConfigType", "BasicParam"))
+	if err != nil {
+		return errors.Wrap(err, "创建查询设备配置请求失败")
+	}
+	request := sipRequestFactory.createMessageRequest(d, xml)
+	_, err = c.server.sendRequest(request)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
 func Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, channelId string, rtpPort int) (model.StreamInfo, error) {
 	log.Debugf("点播开始，流id: %c, 设备ip: %c, SSRC: %c, rtp端口: %d\n", streamId, device.Ip, ssrc, rtpPort)
 	request := sipRequestFactory.createInviteRequest(device, detail, channelId, ssrc, rtpPort)

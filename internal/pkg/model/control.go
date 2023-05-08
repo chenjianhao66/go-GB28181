@@ -14,3 +14,27 @@ type DeviceControl struct {
 	// 变倍控制速度，取值：0-255
 	ZoomSpeed int `json:"zoomSpeed,omitempty"`
 }
+
+// DeviceBasicConfigReq 设备基本配置Request对象
+type DeviceBasicConfigReq struct {
+	// 设备国标id
+	DeviceId string `json:"deviceId"`
+
+	// 设备名称
+	Name string `json:"name,omitempty"`
+
+	// 注册过期时间
+	Expiration int `json:"expiration,omitempty"`
+
+	// 心跳间隔时间
+	HeartBeatInterval int `json:"heartBeatInterval,omitempty"`
+
+	// 心跳超时次数
+	HeartBeatCount int `json:"heartBeatCount,omitempty"`
+}
+
+// DeviceBasicConfigDto 设备配置dto对象
+type DeviceBasicConfigDto struct {
+	DeviceBasicConfigReq
+	Device Device
+}
