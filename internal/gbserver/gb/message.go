@@ -21,12 +21,20 @@ var (
 		// 响应
 		// 查询设备信息响应
 		"Response:DeviceInfo": deviceInfoHandler,
-		"Response:Catalog":    catalogHandler,
+
+		// 设备配置请求应答
+		"Response:DeviceConfig": deviceConfigResponseHandler,
+
+		// 查询设备目录信息响应
+		"Response:Catalog": catalogHandler,
+
+		// 查询设备配置信息响应
+		"Response:ConfigDownload": deviceConfigQueryHandler,
 	}
 )
 
 func MessageHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Info("处理MESSAGE消息...")
+	log.Debug("处理MESSAGE消息...")
 	log.Debugf("MESSAGE消息体：\n%s", req)
 	if l, ok := req.ContentLength(); !ok || l.Equals(0) {
 		log.Debug("该MESSAGE消息的消息体长度为0，返回OK")
@@ -34,7 +42,7 @@ func MessageHandler(req sip.Request, tx sip.ServerTransaction) {
 	}
 	body := req.Body()
 	cmdType, err := parser.GetCmdTypeFromXML(body)
-	log.Info("解析出的命令：", cmdType)
+	log.Debug("解析出的命令：", cmdType)
 	if err != nil {
 		return
 	}

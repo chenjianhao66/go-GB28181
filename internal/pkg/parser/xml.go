@@ -61,7 +61,7 @@ func CreateQueryXML(cmd QueryType, deviceId string, kvs ...WithKeyValue) (string
 func CreateControlXml(cmd ControlType, deviceId string, kvs ...WithKeyValue) (string, error) {
 	document := etree.NewDocument()
 	document.CreateProcInst("xml", "version=\"1.0\" encoding=\"GB2312\"")
-	query := document.CreateElement("ControlPTZ")
+	query := document.CreateElement("Control")
 	query.CreateElement("CmdType").CreateText(string(cmd))
 	query.CreateElement("SN").CreateText(getSN())
 	query.CreateElement("DeviceID").CreateText(deviceId)
@@ -91,6 +91,24 @@ func WithFilePath(value string) WithKeyValue {
 func WithPTZCmd(ptz string) WithKeyValue {
 	return func(element *etree.Element) {
 		element.CreateElement("PTZCmd").CreateText(ptz)
+	}
+}
+
+// WithBasicParams create 'BasicParam' item of xml by value
+func WithBasicParams(name string, expiration, heartBeatInterval, heartBeatCount int) WithKeyValue {
+	return func(element *etree.Element) {
+		p := element.CreateElement("BasicParam")
+		p.CreateElement("Name").CreateText(name)
+		p.CreateElement("Expiration").CreateText(cast.ToString(expiration))
+		p.CreateElement("HeartBeatInterval").CreateText(cast.ToString(heartBeatCount))
+		p.CreateElement("HeartBeatCount").CreateText(cast.ToString(heartBeatInterval))
+	}
+}
+
+// WithCustomKV create 'k' item of xml by 'v'
+func WithCustomKV(k, v string) WithKeyValue {
+	return func(element *etree.Element) {
+		element.CreateElement(k).CreateText(v)
 	}
 }
 
@@ -135,4 +153,43 @@ re:
 
 	key = fmt.Sprintf("%s:%s", root, cmdType)
 	return
+}
+
+func GetResultFromXML(body string) string {
+	_, v, err := getSpecificFromXML(body, "Result")
+	if err != nil {
+		log.Error(err)
+		return ""
+	}
+	return v
+}
+
+// 在body查询指定key的value，然后返回
+func getSpecificFromXML(body, key string) (k, v string, err error) {
+	decoder := xml.NewDecoder(strings.NewReader(body))
+	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		if charset == "GB2312" {
+			return transform.NewReader(input, simplifiedchinese.GB18030.NewDecoder()), nil
+		}
+		return input, nil
+	}
+
+	isSpecific := false
+
+re:
+	for t, err := decoder.Token(); err == nil || err == io.EOF; t, err = decoder.Token() {
+		switch token := t.(type) {
+		case xml.StartElement:
+			if token.Name.Local == key {
+				isSpecific = true
+			}
+		case xml.CharData:
+			if isSpecific {
+				v = string(token)
+				break re
+			}
+		default:
+		}
+	}
+	return key, v, nil
 }

@@ -30,6 +30,16 @@ type (
 		SN string `xml:"SN"`
 	}
 
+	R struct {
+		Result string `xml:"Result"`
+	}
+
+	Mata struct {
+		CmdType
+		DeviceID
+		SN
+	}
+
 	// DeviceInfo 设备信息
 	DeviceInfo struct {
 		CmdType      string `xml:"CmdType"`
@@ -75,5 +85,26 @@ type (
 		RegisterWay  string `xml:"RegisterWay"`
 		Secrecy      string `xml:"Secrecy"`
 		Status       string `xml:"Status"`
+	}
+
+	// DeviceBasicConfigResp 设备基本配置查询返回结构体
+	DeviceBasicConfigResp struct {
+		Mata
+		R
+		BasicParam BasicParam `xml:"BasicParam"`
+	}
+
+	// BasicParam 设备基本配置Basic配置项结构体
+	BasicParam struct {
+		Name string `xml:"Name"`
+		DeviceID
+		SIPServerID       string `xml:"SIPServerID"`
+		SIPServerIP       string `xml:"SIPServerIP"`
+		SIPServerPort     string `xml:"SIPServerPort"`
+		DomainName        string `xml:"DomainName"`
+		Expiration        string `xml:"Expiration"`
+		Password          string `xml:"Password"`
+		HeartBeatInterval int    `xml:"HeartBeatInterval"`
+		HeartBeatCount    int    `xml:"HeartBeatCount"`
 	}
 )

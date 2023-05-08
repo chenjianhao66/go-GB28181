@@ -101,6 +101,10 @@ func initMediaHookRoute(group *gin.RouterGroup) {
 func initDeviceRoute(group *gin.RouterGroup, factory storage.Factory) {
 	d := controller.NewDeviceController(factory)
 	group.GET("/list", d.List)
+
+	// 设备的基本配置
+	group.POST("/config/basic", d.BasicParamsConfig)
+	group.GET("/config/basic/:deviceId", d.BasicParamsQuery)
 }
 
 func initChannelRoute(group *gin.RouterGroup, factory storage.Factory) {
