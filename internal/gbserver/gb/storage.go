@@ -3,6 +3,7 @@ package gb
 import (
 	st "github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"time"
@@ -60,6 +61,17 @@ func (d *data) getDeviceById(deviceId string) (model.Device, bool) {
 
 func (d *data) updateDeviceInfo(device model.Device) error {
 	return d.s.Devices().UpdateDeviceInfo(device)
+}
+
+func (d *data) updateDeviceBasicConfig(device gbsip.DeviceBasicConfigResp) error {
+	dev := model.Device{
+		DeviceId:          device.DeviceID.DeviceID,
+		Name:              device.BasicParam.Name,
+		Expires:           device.BasicParam.Expiration,
+		HeartBeatInterval: device.BasicParam.HeartBeatInterval,
+		HeartBeatCount:    device.BasicParam.HeartBeatCount,
+	}
+	return d.s.Devices().UpdateBasicConfig(dev)
 }
 
 func (d *data) syncChannel(c DeviceCatalogResponse) {

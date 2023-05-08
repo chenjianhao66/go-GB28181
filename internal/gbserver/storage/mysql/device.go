@@ -64,3 +64,12 @@ func (d *devices) UpdateDeviceInfo(entity model.Device) error {
 		Firmware:     entity.Firmware,
 	}).Error
 }
+
+func (d *devices) UpdateBasicConfig(entity model.Device) error {
+	return d.db.Model(&model.Device{}).Where("deviceId = ?", entity.DeviceId).Updates(model.Device{
+		Name:              entity.Name,
+		Expires:           entity.Expires,
+		HeartBeatInterval: entity.HeartBeatInterval,
+		HeartBeatCount:    entity.HeartBeatCount,
+	}).Error
+}

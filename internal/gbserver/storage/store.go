@@ -19,6 +19,7 @@ type DeviceStore interface {
 	GetById(id uint) (model.Device, error)
 	GetByDeviceId(deviceId string) (model.Device, bool)
 	Keepalive(id uint) error
+	UpdateBasicConfig(entity model.Device) error
 }
 
 type MediaStorage interface {
