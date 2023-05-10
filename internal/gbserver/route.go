@@ -105,6 +105,8 @@ func initDeviceRoute(group *gin.RouterGroup, factory storage.Factory) {
 	// 设备的基本配置
 	group.POST("/config/basic", d.BasicParamsConfig)
 	group.GET("/config/basic/:deviceId", d.BasicParamsQuery)
+
+	group.GET("/status/:deviceId", d.StatusQuery)
 }
 
 func initChannelRoute(group *gin.RouterGroup, factory storage.Factory) {

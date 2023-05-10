@@ -107,4 +107,25 @@ type (
 		HeartBeatInterval int    `xml:"HeartBeatInterval"`
 		HeartBeatCount    int    `xml:"HeartBeatCount"`
 	}
+
+	DeviceStatus struct {
+		Mata
+		R
+		Reason      string `xml:"Reason"`
+		Online      string `xml:"Online"`
+		Status      string `xml:"Status"`
+		DeviceTime  string `xml:"DeviceTime"`
+		Encode      string `xml:"Encode"`
+		Record      string `xml:"Record"`
+		AlarmStatus Alarm  `xml:"Alarmstatus"`
+	}
+
+	Alarm struct {
+		Num  int           `xml:"Num,attr"`
+		Item []AlarmStatus `xml:"Item"`
+	}
+	AlarmStatus struct {
+		DeviceID   string `xml:"DeviceID"`
+		DutyStatus string `xml:"DutyStatus"`
+	}
 )

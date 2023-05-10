@@ -3,9 +3,12 @@ package gb
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/parser"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/syn"
 	"github.com/ghettovoice/gosip"
 	"github.com/ghettovoice/gosip/sip"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -27,6 +30,9 @@ var (
 
 		// 查询设备目录信息响应
 		"Response:Catalog": catalogHandler,
+
+		// 查询设备状态信息响应
+		"Response:DeviceStatus": deviceStatusHandler,
 
 		// 查询设备配置信息响应
 		"Response:ConfigDownload": deviceConfigQueryHandler,
@@ -197,4 +203,19 @@ func catalogHandler(req sip.Request, tx sip.ServerTransaction) {
 	}
 	// save catalog object to database
 	storage.syncChannel(catalog)
+}
+
+func deviceStatusHandler(req sip.Request, tx sip.ServerTransaction) {
+	defer func() {
+		_ = responseAck(tx, req)
+	}()
+	status := &gbsip.DeviceStatus{}
+
+	if err := xml.Unmarshal([]byte(req.Body()), status); err != nil {
+		log.Error(err)
+		return
+	}
+	syn.HasSyncTask(fmt.Sprintf("%s_%s", syn.KeyQueryDeviceStatus, status.DeviceID.DeviceID), func(e *syn.Entity) {
+		e.Ok(*status)
+	})
 }

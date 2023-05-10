@@ -17,7 +17,7 @@ const (
 )
 
 func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Infof("收到来自%s的请求\n", req.Source())
+	log.Debugf("收到register请求\n%s", req)
 	// 判断是否存在 Authorization 字段
 	if headers := req.GetHeaders("Authorization"); len(headers) > 0 {
 		// 存在 Authorization 头部字段
