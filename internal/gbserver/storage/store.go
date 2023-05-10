@@ -28,6 +28,6 @@ type MediaStorage interface {
 }
 
 type ChannelStore interface {
-	SaveBatch(channels []model.Channel) error
+	SaveBatch(channels []model.Channel, deviceId string) error
 	List(deviceId string) ([]model.Channel, error)
 }

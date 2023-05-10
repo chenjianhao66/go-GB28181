@@ -1,5 +1,9 @@
 package syn
 
 const (
-	KeyControlDeviceStatus = "CallBack_Control_DeviceConfig"
+	KeyControlDeviceConfigQuery = "CallBack_Control_DeviceConfig_Query"
+)
+
+const (
+	KeyQueryDeviceStatus = "CallBack_Qeury_DeviceStatus"
 )

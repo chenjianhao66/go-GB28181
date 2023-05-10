@@ -35,7 +35,7 @@ func deviceConfigQueryHandler(req sip.Request, tx sip.ServerTransaction) {
 		return
 	}
 
-	syn.HasSyncTask(fmt.Sprintf("%s_%s", syn.KeyControlDeviceStatus, cfg.DeviceID.DeviceID), func(e *syn.Entity) {
+	syn.HasSyncTask(fmt.Sprintf("%s_%s", syn.KeyControlDeviceConfigQuery, cfg.DeviceID.DeviceID), func(e *syn.Entity) {
 		e.Ok(cfg)
 	})
 

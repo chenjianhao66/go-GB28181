@@ -80,5 +80,5 @@ func (d *data) syncChannel(c DeviceCatalogResponse) {
 		c := item.ConvertToChannel()
 		channels = append(channels, c)
 	}
-	_ = d.s.Channel().SaveBatch(channels)
+	_ = d.s.Channel().SaveBatch(channels, c.DeviceID.DeviceID)
 }

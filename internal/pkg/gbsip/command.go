@@ -88,6 +88,20 @@ func DeviceBasicConfigQuery(d model.Device) error {
 	return nil
 }
 
+func DeviceStatusQuery(d model.Device) error {
+	xml, err := parser.CreateQueryXML(parser.DeviceStatusCmdType, d.DeviceId)
+	if err != nil {
+		return errors.Wrap(err, "创建查询设备状态请求失败")
+	}
+	request := sipRequestFactory.createMessageRequest(d, xml)
+	_, err = c.server.sendRequest(request)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
 func Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, channelId string, rtpPort int) (model.StreamInfo, error) {
 	log.Debugf("点播开始，流id: %c, 设备ip: %c, SSRC: %c, rtp端口: %d\n", streamId, device.Ip, ssrc, rtpPort)
 	request := sipRequestFactory.createInviteRequest(device, detail, channelId, ssrc, rtpPort)
