@@ -19,7 +19,9 @@ import (
 var (
 	messageHandler = map[string]gosip.RequestHandler{
 		// 通知
-		"Notify:Keepalive": keepaliveHandler,
+		"Notify:Keepalive":      keepaliveNotifyHandler,
+		"Notify:Alarm":          alarmNotifyHandler,
+		"Notify:MobilePosition": mobilePositionNotifyHandler,
 
 		// 响应
 		// 查询设备信息响应
@@ -36,12 +38,18 @@ var (
 
 		// 查询设备配置信息响应
 		"Response:ConfigDownload": deviceConfigQueryHandler,
+
+		// 发起报警订阅信息响应
+		"Response:Alarm": subscribeAlarmResponseHandler,
+
+		// 发起设备移动位置订阅响应
+		"Response:MobilePosition": subscribeMobilePositionResponseHandler,
 	}
 )
 
 func MessageHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Debug("处理MESSAGE消息...")
-	log.Debugf("MESSAGE消息体：\n%s", req)
+	//log.Debug("处理MESSAGE消息...")
+	//log.Debugf("MESSAGE消息体：\n%s", req)
 	if l, ok := req.ContentLength(); !ok || l.Equals(0) {
 		log.Debug("该MESSAGE消息的消息体长度为0，返回OK")
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))

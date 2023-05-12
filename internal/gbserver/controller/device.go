@@ -132,3 +132,45 @@ func (d *DeviceController) StatusQuery(ctx *gin.Context) {
 
 	newResponse(ctx).successWithAny(data)
 }
+
+func (d *DeviceController) AlarmSubscribe(ctx *gin.Context) {
+	deviceId := ctx.Param("deviceId")
+	device, ok := d.srv.Devices().GetByDeviceId(deviceId)
+	if !ok {
+		newResponse(ctx).fail(errDeviceNotFound.Error())
+		return
+	}
+	if err := gbsip.AlarmSubscribe(device); err != nil {
+		newResponse(ctx).fail("订阅失败")
+		return
+	}
+	newResponse(ctx).success()
+}
+
+func (d *DeviceController) CatalogSubscribe(ctx *gin.Context) {
+	deviceId := ctx.Param("deviceId")
+	device, ok := d.srv.Devices().GetByDeviceId(deviceId)
+	if !ok {
+		newResponse(ctx).fail(errDeviceNotFound.Error())
+		return
+	}
+	if err := gbsip.CatalogSubscribe(device); err != nil {
+		newResponse(ctx).fail("订阅失败")
+		return
+	}
+	newResponse(ctx).success()
+}
+
+func (d *DeviceController) MobilePositionSubscribe(ctx *gin.Context) {
+	deviceId := ctx.Param("deviceId")
+	device, ok := d.srv.Devices().GetByDeviceId(deviceId)
+	if !ok {
+		newResponse(ctx).fail(errDeviceNotFound.Error())
+		return
+	}
+	if err := gbsip.MobilePositionSubscribe(device); err != nil {
+		newResponse(ctx).fail("订阅失败")
+		return
+	}
+	newResponse(ctx).success()
+}

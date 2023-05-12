@@ -102,6 +102,74 @@ func DeviceStatusQuery(d model.Device) error {
 	return nil
 }
 
+func AlarmSubscribe(device model.Device) error {
+	xml, err := parser.CreateQueryXML(parser.AlarmCmdType, device.DeviceId, parser.WithAlarmQuery())
+	if err != nil {
+		return errors.Wrap(err, "创建报警订阅请求body失败")
+	}
+	request, err := sipRequestFactory.createSubscribeRequest(device, xml, "presence")
+	if err != nil {
+		return errors.Wrap(err, "创建报警订阅请求失败")
+	}
+	log.Debug("报警订阅请求：\n", request)
+	tx, err := c.server.sendRequest(request)
+	if err != nil {
+		log.Error(err)
+		return errors.Wrap(err, "发送请求失败")
+	}
+	response := getResponse(tx)
+	if response == nil || !response.IsSuccess() {
+		log.Error("发送请求失败")
+		return errors.New("发送请求失败2")
+	}
+	log.Debug("报警订阅请求响应:\n", response)
+	return nil
+}
+
+func CatalogSubscribe(device model.Device) error {
+	xml, err := parser.CreateQueryXML(parser.CatalogCmdType, device.DeviceId)
+	if err != nil {
+		return errors.Wrap(err, "创建目录请订阅求body失败")
+	}
+	request, err := sipRequestFactory.createSubscribeRequest(device, xml, "Catalog")
+	if err != nil {
+		return errors.Wrap(err, "创建目录订阅请求失败")
+	}
+	tx, err := c.server.sendRequest(request)
+	if err != nil {
+		log.Error(err)
+		return errors.Wrap(err, "发送目录订阅请求失败")
+	}
+	response := getResponse(tx)
+	if response == nil || !response.IsSuccess() {
+		log.Error("接收目录订阅消息确认超时")
+		return errors.New("接收目录订阅消息确认超时")
+	}
+	return nil
+}
+
+func MobilePositionSubscribe(device model.Device) error {
+	xml, err := parser.CreateQueryXML(parser.MobilePositionCmdType, device.DeviceId, parser.WithCustomKV("Interval", "5"))
+	if err != nil {
+		return errors.Wrap(err, "创建设备移动位置订阅请求body失败")
+	}
+	request, err := sipRequestFactory.createSubscribeRequest(device, xml, "presence")
+	if err != nil {
+		return errors.Wrap(err, "创建设备移动位置订阅请求失败")
+	}
+	tx, err := c.server.sendRequest(request)
+	if err != nil {
+		log.Error(err)
+		return errors.Wrap(err, "发送设备移动位置订阅请求失败")
+	}
+	response := getResponse(tx)
+	if response == nil || !response.IsSuccess() {
+		log.Error("接收设备移动位置订阅确认超时")
+		return errors.New("接收设备移动位置订阅确认超时")
+	}
+	return nil
+}
+
 func Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, channelId string, rtpPort int) (model.StreamInfo, error) {
 	log.Debugf("点播开始，流id: %c, 设备ip: %c, SSRC: %c, rtp端口: %d\n", streamId, device.Ip, ssrc, rtpPort)
 	request := sipRequestFactory.createInviteRequest(device, detail, channelId, ssrc, rtpPort)
