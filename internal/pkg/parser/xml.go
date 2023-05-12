@@ -105,6 +105,14 @@ func WithBasicParams(name string, expiration, heartBeatInterval, heartBeatCount 
 	}
 }
 
+func WithAlarmQuery() WithKeyValue {
+	return func(element *etree.Element) {
+		element.CreateElement("StartAlarmPriority").CreateText("0")
+		element.CreateElement("EndAlarmPriority").CreateText("0")
+		element.CreateElement("AlarmMethod").CreateText("0")
+	}
+}
+
 // WithCustomKV create 'k' item of xml by 'v'
 func WithCustomKV(k, v string) WithKeyValue {
 	return func(element *etree.Element) {
