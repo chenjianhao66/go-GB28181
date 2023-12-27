@@ -1,7 +1,7 @@
 package gb
 
 import (
-	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/mysql"
+	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/sqlite"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
@@ -26,7 +26,9 @@ func NewServer(c *SipConfig) *Server {
 				HandlerMap:  createHandlerMap(),
 			}),
 	}
-	storage.s = mysql.GetMySQLFactory()
+	// 使用sqlite
+	//storage.s = mysql.GetMySQLFactory()
+	storage.s = sqlite.GetSqliteFactory()
 	return s
 }
 

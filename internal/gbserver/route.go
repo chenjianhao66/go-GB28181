@@ -6,7 +6,7 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/controller"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/service"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
-	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/mysql"
+	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/sqlite"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
 	"github.com/gin-gonic/gin"
@@ -56,7 +56,9 @@ func (a *apiServer) Close() error {
 }
 
 func (a *apiServer) installController() {
-	store := mysql.GetMySQLFactory()
+	//store := mysql.GetMySQLFactory()
+	// 使用sqlite3
+	store := sqlite.GetSqliteFactory()
 	service.InitService(store)
 	initMediaHookRoute(a.engine.Group("/index/hook"))
 	initDeviceRoute(a.engine.Group("/device"), store)
