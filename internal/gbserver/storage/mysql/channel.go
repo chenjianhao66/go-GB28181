@@ -14,14 +14,14 @@ func newChannelStorage(ds *datastore) *channelStorage {
 	return &channelStorage{db: ds.db}
 }
 
-func (c channelStorage) SaveBatch(channels []model.Channel) error {
+func (c channelStorage) SaveBatch(channels []model.Channel, deviceId string) error {
 	var deviceIds []string
 	for _, c := range channels {
 		deviceIds = append(deviceIds, c.DeviceId)
 	}
 	err := c.db.Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Where("deviceId = ?", deviceIds).Delete(&model.Channel{}).Error; err != nil {
+		if err := tx.Where("parentId = ?", deviceId).Delete(&model.Channel{}).Error; err != nil {
 			return err
 		}
 

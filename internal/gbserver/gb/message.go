@@ -3,9 +3,12 @@ package gb
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/parser"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/syn"
 	"github.com/ghettovoice/gosip"
 	"github.com/ghettovoice/gosip/sip"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -16,7 +19,9 @@ import (
 var (
 	messageHandler = map[string]gosip.RequestHandler{
 		// 通知
-		"Notify:Keepalive": keepaliveHandler,
+		"Notify:Keepalive":      keepaliveNotifyHandler,
+		"Notify:Alarm":          alarmNotifyHandler,
+		"Notify:MobilePosition": mobilePositionNotifyHandler,
 
 		// 响应
 		// 查询设备信息响应
@@ -28,14 +33,23 @@ var (
 		// 查询设备目录信息响应
 		"Response:Catalog": catalogHandler,
 
+		// 查询设备状态信息响应
+		"Response:DeviceStatus": deviceStatusHandler,
+
 		// 查询设备配置信息响应
 		"Response:ConfigDownload": deviceConfigQueryHandler,
+
+		// 发起报警订阅信息响应
+		"Response:Alarm": subscribeAlarmResponseHandler,
+
+		// 发起设备移动位置订阅响应
+		"Response:MobilePosition": subscribeMobilePositionResponseHandler,
 	}
 )
 
 func MessageHandler(req sip.Request, tx sip.ServerTransaction) {
-	log.Debug("处理MESSAGE消息...")
-	log.Debugf("MESSAGE消息体：\n%s", req)
+	//log.Debug("处理MESSAGE消息...")
+	//log.Debugf("MESSAGE消息体：\n%s", req)
 	if l, ok := req.ContentLength(); !ok || l.Equals(0) {
 		log.Debug("该MESSAGE消息的消息体长度为0，返回OK")
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
@@ -197,4 +211,19 @@ func catalogHandler(req sip.Request, tx sip.ServerTransaction) {
 	}
 	// save catalog object to database
 	storage.syncChannel(catalog)
+}
+
+func deviceStatusHandler(req sip.Request, tx sip.ServerTransaction) {
+	defer func() {
+		_ = responseAck(tx, req)
+	}()
+	status := &gbsip.DeviceStatus{}
+
+	if err := xml.Unmarshal([]byte(req.Body()), status); err != nil {
+		log.Error(err)
+		return
+	}
+	syn.HasSyncTask(fmt.Sprintf("%s_%s", syn.KeyQueryDeviceStatus, status.DeviceID.DeviceID), func(e *syn.Entity) {
+		e.Ok(*status)
+	})
 }

@@ -18,7 +18,7 @@ type keepalive struct {
 	Info     string `xml:"Info"`
 }
 
-func keepaliveHandler(req sip.Request, tx sip.ServerTransaction) {
+func keepaliveNotifyHandler(req sip.Request, tx sip.ServerTransaction) {
 	keepalive := &keepalive{}
 	if err := xml.Unmarshal([]byte(req.Body()), keepalive); err != nil {
 		log.Debugf("keepalive 消息解析xml失败：%s", err)
@@ -44,4 +44,47 @@ func keepaliveHandler(req sip.Request, tx sip.ServerTransaction) {
 	}
 
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))
+}
+
+func alarmNotifyHandler(req sip.Request, tx sip.ServerTransaction) {
+	// 使用 gbsip.AlarmNotify 结构体解析
+	// 自行扩展
+
+	_ = responseAck(tx, req)
+}
+
+func mobilePositionNotifyHandler(req sip.Request, tx sip.ServerTransaction) {
+	// 自行扩展
+
+	_ = responseAck(tx, req)
+}
+
+func subscribeAlarmResponseHandler(req sip.Request, tx sip.ServerTransaction) {
+	r := parser.GetResultFromXML(req.Body())
+	if r == "" {
+		log.Error("获取不到响应信息中的Result字段")
+		return
+	}
+
+	if r == "ERROR" {
+		log.Error("订阅报警信息失败，请检查")
+	} else {
+		log.Debug("订阅报警信息成功")
+	}
+	_ = responseAck(tx, req)
+}
+
+func subscribeMobilePositionResponseHandler(req sip.Request, tx sip.ServerTransaction) {
+	r := parser.GetResultFromXML(req.Body())
+	if r == "" {
+		log.Error("获取不到响应信息中的Result字段")
+		return
+	}
+
+	if r == "ERROR" {
+		log.Error("订阅设备移动位置信息失败，请检查")
+	} else {
+		log.Debug("订阅设备移动位置信息信息成功")
+	}
+	_ = responseAck(tx, req)
 }

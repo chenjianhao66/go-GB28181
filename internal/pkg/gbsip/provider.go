@@ -96,6 +96,59 @@ func (f sipFactory) createInviteRequest(device model.Device, detail model.MediaD
 	return request
 }
 
+func (f sipFactory) createSubscribeRequest(device model.Device, body, event string) (sip.Request, error) {
+	builder := sip.NewRequestBuilder()
+	to := newTo(device.DeviceId, device.Ip, device.Port)
+	// method
+	builder.SetMethod(sip.SUBSCRIBE)
+	// to
+	builder.SetTo(to)
+	// from
+	builder.SetFrom(newFromAddress(newParams(map[string]string{"tag": randString(32)})))
+
+	sipUri := &sip.SipUri{
+		FUser: sip.String{Str: device.DeviceId},
+		FHost: to.Uri.Host(),
+	}
+	builder.SetRecipient(sipUri)
+	// via
+	builder.AddVia(newVia(device.Transport))
+	//contact
+	builder.SetContact(newTo(config.SIPId(), config.SIPAddress(), config.SIPPort()))
+	// content-type
+	contentType := sip.ContentType(contentTypeXML)
+	builder.SetContentType(&contentType)
+	// body
+	builder.SetBody(body)
+	// ceq
+	ceq, err := cache.GetCeq()
+	if err != nil {
+		log.Error("get ceq in cache fail,", err)
+		builder.SetSeqNo(cast.ToUint(rand.Uint32()))
+	} else {
+		builder.SetSeqNo(cast.ToUint(ceq))
+	}
+	// callID
+	callID := sip.CallID(fmt.Sprintf("%s", randString(32)))
+	builder.SetCallID(&callID)
+
+	// expires
+	expires := sip.Expires(3600)
+	builder.SetExpires(&expires)
+
+	eventHeader := &sip.GenericHeader{
+		HeaderName: "Event",
+		Contents:   event,
+	}
+	builder.AddHeader(eventHeader)
+	request, err := builder.Build()
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return request, nil
+}
+
 // create bye request
 func (f sipFactory) createByeRequest(channelId string, device model.Device, tx SipTX) (sip.Request, error) {
 
@@ -154,7 +207,6 @@ func (f sipFactory) createRegisterRequest(devices []model.Device) sip.Request {
 
 // 从自身SIP服务获取地址返回FromHeader
 func newFromAddress(params sip.Params) *sip.Address {
-	log.Info(config.SIPId())
 	return &sip.Address{
 		Uri: &sip.SipUri{
 			FUser: sip.String{Str: config.SIPId()},
@@ -240,14 +292,4 @@ func getResponse(tx sip.ClientTransaction) sip.Response {
 			return nil
 		}
 	}
-}
-
-func responseAck(transaction sip.ServerTransaction, request sip.Request) error {
-	err := transaction.Respond(sip.NewResponseFromRequest("", request, sip.StatusCode(http.StatusOK),
-		http.StatusText(http.StatusOK), ""))
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	return nil
 }
