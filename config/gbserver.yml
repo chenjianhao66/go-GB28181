@@ -12,7 +12,12 @@ mysql:
     max-open-connections: 100
     max-connection-life-time: 10
     log-level: 1
-
+sqlite:
+    path: db
+    file: gbserver.db
+    username: root
+    password: root
+    database: go-gb28181
 redis:
     host: 127.0.0.1
     port: 6379
