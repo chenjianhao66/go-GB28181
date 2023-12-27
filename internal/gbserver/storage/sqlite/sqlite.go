@@ -59,16 +59,13 @@ func New(opts *option.SqliteOptions) (*gorm.DB, error) {
 }
 
 func (s *sqliteDatastore) Devices() storage.DeviceStore {
-	//TODO implement me
-	panic("implement me")
+	return newDevices(s)
 }
 
 func (s *sqliteDatastore) Media() storage.MediaStorage {
-	//TODO implement me
-	panic("implement me")
+	return newMediaStorage(s)
 }
 
 func (s *sqliteDatastore) Channel() storage.ChannelStore {
-	//TODO implement me
-	panic("implement me")
+	return newChannelStorage(s)
 }
