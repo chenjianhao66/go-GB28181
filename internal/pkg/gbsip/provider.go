@@ -133,6 +133,25 @@ func (f sipFactory) createByeRequest(channelId string, device model.Device, tx S
 	return request, nil
 }
 
+func (f sipFactory) createRegisterRequest(devices []model.Device) sip.Request {
+	requestBuilder := sip.NewRequestBuilder()
+
+	srv := devices[0]
+	client := devices[1]
+	requestBuilder.SetFrom(newTo(client.DeviceId, client.Ip, client.Port))
+
+	to := newTo(srv.DeviceId, srv.Ip, srv.Port)
+	requestBuilder.SetTo(to)
+	requestBuilder.SetRecipient(to.Uri)
+	requestBuilder.AddVia(newVia(client.Transport))
+	requestBuilder.SetMethod(sip.REGISTER)
+
+	rand.Seed(time.Now().UnixMilli())
+	requestBuilder.SetSeqNo(cast.ToUint(rand.Uint32()))
+	request, _ := requestBuilder.Build()
+	return request
+}
+
 // 从自身SIP服务获取地址返回FromHeader
 func newFromAddress(params sip.Params) *sip.Address {
 	log.Info(config.SIPId())

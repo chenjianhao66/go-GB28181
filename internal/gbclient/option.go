@@ -7,8 +7,8 @@ import (
 
 type ctlOption struct {
 	Sip          *option.SIPOptions `json:"sip" mapstructure:"sip"`
-	LogOption    *option.LogOptions `json:"log" mapstructure:"log"`
-	ClientOption *ClientOptions     `json:"client" mapstructure:"client"`
+	LogOption    *option.LogOptions `json:"log" mapstructure:"log" yaml:"log"`
+	ClientOption *ClientOptions     `json:"client" mapstructure:"client" yaml:"client"`
 }
 
 func newCTLOption() *ctlOption {
@@ -32,6 +32,7 @@ type ClientOptions struct {
 	Ip                  string  `json:"ip,omitempty" mapstructure:"ip"`
 	Port                string  `json:"port,omitempty" mapstructure:"port"`
 	Id                  string  `json:"id,omitempty" mapstructure:"id"`
+	Domain              string  `json:"domain" mapstructure:"domain"`
 	User                string  `json:"user,omitempty" mapstructure:"user"`
 	Password            string  `json:"password,omitempty" mapstructure:"password"`
 	RegisterExpire      int64   `json:"registerExpire,omitempty" mapstructure:"register-expire"`

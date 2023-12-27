@@ -169,6 +169,11 @@ func StopPlay(streamId, channelId string, device model.Device) error {
 	return nil
 }
 
+func Register(devies []model.Device) {
+	request := sipRequestFactory.createRegisterRequest(devies)
+	log.Infof("生成的register请求：\n%s", request)
+}
+
 // save stream info to cache
 func saveStreamInfo(info model.StreamInfo) {
 	key := fmt.Sprintf("%s:%s", constant.StreamInfoPrefix, info.Stream)

@@ -2,9 +2,6 @@ package gbclient
 
 import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/app"
-	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
-	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 )
 
 const description = `这是一个实现了国标标准的模拟摄像头，它将实现国标的功能用于调试。
@@ -27,13 +24,6 @@ func NewApp(basename string) *app.App {
 
 func run(opt *ctlOption) app.RunFunc {
 	return func(basename string) error {
-		log.Init(opt.LogOption)
-		log.Info("exec gbclient success....")
-		log.Info(cast.ToString(viper.GetString("sip.id")))
-		viper.New()
-		strings := viper.GetStringSlice("client.channel.list")
-
-		log.Info(strings)
-		return nil
+		return newServer(opt).run()
 	}
 }
