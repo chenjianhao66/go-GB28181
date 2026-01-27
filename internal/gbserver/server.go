@@ -25,11 +25,11 @@ func NewServer(opt *GbOption) *Server {
 	apiConfig := &apiConfig{
 		mediaOption:  opt.MediaOption,
 		serverOption: opt.ServerOption,
-		mysqlOption:  opt.MysqlOption,
+		//mysqlOption:  opt.MysqlOption,
 	}
 	gbConfig := &gb.SipConfig{
-		SipOption:   opt.Sip,
-		MysqlOption: opt.MysqlOption,
+		SipOption: opt.Sip,
+		//MysqlOption: opt.MysqlOption,
 	}
 	return &Server{
 		sip:       gb.NewServer(gbConfig),

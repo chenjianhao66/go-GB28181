@@ -41,7 +41,7 @@ func newRedis(opt *option.RedisOptions) *redisClient {
 			err,
 		))
 	}
-	log.Infof("connection to redis success,%v:%v\n", opt.Host, opt.Port)
+	log.Infof("connection to redis success,%v:%v", opt.Host, opt.Port)
 	//fmt.Printf("connection to redis success,%s:%d\n", options.Host, options.Port)
 	rdb.AddHook(&redisHook{})
 	return &redisClient{

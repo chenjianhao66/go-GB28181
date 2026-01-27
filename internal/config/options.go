@@ -33,7 +33,7 @@ func initOptions() *Options {
 }
 
 func loadConfig() {
-	viper.AddConfigPath("config/")
+	viper.AddConfigPath("./config/")
 	viper.SetConfigName(defaultConfigName)
 	viper.SetConfigType("yml")
 	viper.AutomaticEnv()

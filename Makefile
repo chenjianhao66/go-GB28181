@@ -7,16 +7,16 @@ all: check build
 
 .PHONY: setup
 setup:
-	mkdir -p ${RELEASE_FOLDER}/linux
-	mkdir -p ${RELEASE_FOLDER}/darwin
-	mkdir -p ${RELEASE_FOLDER}/windows
-	cp -r ./config ${RELEASE_FOLDER}/linux
-	cp -r ./config ${RELEASE_FOLDER}/darwin
-	cp -r ./config ${RELEASE_FOLDER}/windows
+	@mkdir -p ${RELEASE_FOLDER}/linux
+	@mkdir -p ${RELEASE_FOLDER}/darwin
+	@mkdir -p ${RELEASE_FOLDER}/windows
+	@cp -r ./config ${RELEASE_FOLDER}/linux
+	@cp -r ./config ${RELEASE_FOLDER}/darwin
+	@cp -r ./config ${RELEASE_FOLDER}/windows
 
 .PHONY: build
 build: setup
-	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=linux go build -o "./${RELEASE_FOLDER}/linux/${BIN_FILE}"
+	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=linux go build -o "./${RELEASE_FOLDER}/linux/${BIN_FILE}" ./cmd/gbserver/gbserver.go
 	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=darwin go build -o "./${RELEASE_FOLDER}/darwin/${BIN_FILE}"
 	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=windows go build -o "./${RELEASE_FOLDER}/windows/${BIN_FILE}${WIN_APPENDIX}"
 

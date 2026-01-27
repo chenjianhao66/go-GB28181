@@ -13,7 +13,7 @@ type SqliteOptions struct {
 
 func NewSqliteOptions() *SqliteOptions {
 	return &SqliteOptions{
-		Path:     "db",
+		Path:     "./",
 		File:     "gbserver.db",
 		Username: "root",
 		Password: "root",

@@ -8,6 +8,7 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
+	"os"
 	"sync"
 
 	//"gorm.io/driver/sqlite"
@@ -49,6 +50,19 @@ func GetSqliteFactory() storage.Factory {
 // New 根据MySQL选项去构建gorm对象
 func New(opts *option.SqliteOptions) (*gorm.DB, error) {
 	d := fmt.Sprintf("%s/%s", opts.Path, opts.File)
+	_, err := os.Stat(d)
+	if err != nil {
+		if os.IsNotExist(err) {
+			if err := os.Mkdir(opts.Path, os.ModePerm); err != nil {
+				panic("创建sqlite目录失败, : " + err.Error())
+			}
+			if _, err := os.Create(d); err != nil {
+				panic("创建sqlite数据库文件失败" + err.Error())
+			}
+		} else {
+			panic(err)
+		}
+	}
 	db, err := gorm.Open(sqlite.Open(d), &gorm.Config{})
 
 	if err != nil {
