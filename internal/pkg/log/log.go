@@ -78,23 +78,23 @@ func Debug(args ...interface{}) {
 }
 
 func Debugf(format string, args ...interface{}) {
-	l.Debugf(format, args)
+	l.Debugf(format, args...)
 }
 
 func Info(args ...interface{}) {
-	l.Info(args)
+	l.Info(args...)
 }
 
 func Infof(format string, args ...interface{}) {
-	l.Infof(format, args)
+	l.Infof(format, args...)
 }
 
 func Warn(args ...interface{}) {
-	l.Warn(args)
+	l.Warn(args...)
 }
 
 func Warnf(format string, args ...interface{}) {
-	l.Warnf(format, args)
+	l.Warnf(format, args...)
 }
 
 func Error(args ...interface{}) {
@@ -102,21 +102,21 @@ func Error(args ...interface{}) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	l.Errorf(format, args)
+	l.Errorf(format, args...)
 }
 
 func Fatal(args ...interface{}) {
-	l.Fatal(args)
+	l.Fatal(args...)
 }
 
 func Fatalf(format string, args ...interface{}) {
-	l.Fatalf(format, args)
+	l.Fatalf(format, args...)
 }
 
 func Panic(args ...interface{}) {
-	l.Panic(args)
+	l.Panic(args...)
 }
 
 func Panicf(format string, args ...interface{}) {
-	l.Panicf(format, args)
+	l.Panicf(format, args...)
 }
