@@ -2,21 +2,16 @@
 server:
     port: 18080
 
-mysql:
-    host: 127.0.0.1:3306
-    port: 3306
+sqlite:
+    path: ./db
+    file: gbserver.db
     username: root
-    password: 123456
-    database: gb
-    max-idle-connections: 100
-    max-open-connections: 100
-    log-level: 1
+    password: root
+    database: go-gb28181
 
-redis:
-    host: 127.0.0.1
-    port: 6379
-    database: 0
-    username: root
+nutsdb:
+    path: ./db
+
 
 # 作为 28181 服务器的配置
 sip:
