@@ -12,8 +12,8 @@ type Cache interface {
 
 var cache Cache
 
-func InitCache(opt *option.RedisOptions) {
-	cache = newRedis(opt)
+func InitCache(opt *option.NutsDBOptions) {
+	cache = newNutsDB(opt)
 }
 
 // Get get value in cache by key

@@ -9,7 +9,7 @@ type GbOption struct {
 	ServerOption *option.ServerOptions `json:"server,omitempty" mapstructure:"server"`
 	MediaOption  *option.MediaOptions  `json:"media,omitempty" mapstructure:"media"`
 	SqliteOption *option.SqliteOptions `json:"sqliteOption" mapstructure:"sqlite"`
-	RedisOption  *option.RedisOptions  `json:"redis,omitempty" mapstructure:"redis"`
+	NutsDBOption *option.NutsDBOptions `json:"nutsdb,omitempty" mapstructure:"nutsdb"`
 	LogOption    *option.LogOptions    `json:"log,omitempty" mapstructure:"log"`
 	Sip          *option.SIPOptions    `json:"sip" mapstructure:"sip"`
 }
@@ -19,7 +19,7 @@ func newGbOption() *GbOption {
 		ServerOption: option.NewServerOptions(),
 		MediaOption:  option.NewMediaOption(),
 		SqliteOption: option.NewSqliteOptions(),
-		RedisOption:  option.NewRedisOptions(),
+		NutsDBOption: option.NewNutsDBOptions(),
 		LogOption:    option.NewLogOptions(),
 		Sip:          option.NewSIPOptions(),
 	}
@@ -30,7 +30,7 @@ func (c *GbOption) Flags() (fss *pflag.FlagSet) {
 	c.ServerOption.AddFlags(fss)
 	c.SqliteOption.AddFlags(fss)
 	c.MediaOption.AddFlags(fss)
-	c.RedisOption.AddFlags(fss)
+	c.NutsDBOption.AddFlags(fss)
 	c.LogOption.AddFlags(fss)
 	c.Sip.AddFlags(fss)
 	return

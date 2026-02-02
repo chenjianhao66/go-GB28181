@@ -49,7 +49,7 @@ func (s *Server) Run() error {
 		}
 		log.Info("gbserver shutdown....")
 	}()
-	cache.InitCache(s.opt.RedisOption)
+	cache.InitCache(s.opt.NutsDBOption)
 	s.apiServer.initRoute()
 	eg, ctx := errgroup.WithContext(s.ctx)
 	defer ctx.Done()
