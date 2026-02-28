@@ -3,17 +3,19 @@ package gbserver
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/controller"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/service"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/sqlite"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files"
+	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
-	"time"
 )
 
 type apiServer struct {
@@ -66,6 +68,7 @@ func (a *apiServer) installController() {
 	initControlRoute(a.engine.Group("/control"))
 	initPlayRoute(a.engine.Group("/play"), store)
 	initSwaggerRoute(a.engine.Group("/"))
+	initUiRoute(a.engine)
 }
 
 func initSwaggerRoute(group *gin.RouterGroup) {
@@ -110,16 +113,28 @@ func initDeviceRoute(group *gin.RouterGroup, factory storage.Factory) {
 	// 查询设备状态
 	group.GET("/status/:deviceId", d.StatusQuery)
 	// 查询设备文件目录
-	//group.GET("/catalog",)
+	group.POST("/catalog/:deviceId", d.CatalogQuery)
 
 	// 订阅
-	group.POST("/subscribe/alarm:deviceId", d.AlarmSubscribe)
-	group.POST("/subscribe/catalog:deviceId", d.CatalogSubscribe)
-	group.POST("/subscribe/mobilePosition:deviceId", d.MobilePositionSubscribe)
+	group.POST("/subscribe/alarm/:deviceId", d.AlarmSubscribe)
+	group.POST("/subscribe/catalog/:deviceId", d.CatalogSubscribe)
+	group.POST("/subscribe/mobilePosition/:deviceId", d.MobilePositionSubscribe)
 
 }
 
 func initChannelRoute(group *gin.RouterGroup, factory storage.Factory) {
 	c := controller.NewChannelController(factory)
 	group.GET("/list/:device", c.List)
+}
+
+func initUiRoute(engine *gin.Engine) {
+	folder, err := static.EmbedFolder(staticFiles, "ui/dist")
+	if err != nil {
+		panic(err)
+	}
+	engine.Use(static.Serve("/", folder))
+	engine.NoRoute(func(context *gin.Context) {
+		fmt.Printf("%s doesn't exists, redirect on /\n", context.Request.URL.Path)
+		context.Redirect(http.StatusMovedPermanently, "/")
+	})
 }

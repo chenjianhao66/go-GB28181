@@ -21,7 +21,7 @@ const (
 // HookReply hook事件默认回复
 type HookReply struct {
 	// 0代表允许，其他均为不允许
-	Code int `json:"code,omitempty"`
+	Code int `json:"code"`
 
 	// 当code不为0时，msg字段应给出相应提示
 	Msg string `json:"msg,omitempty"`

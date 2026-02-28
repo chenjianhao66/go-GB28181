@@ -7,6 +7,7 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model/constant"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
 	"github.com/nutsdb/nutsdb"
+	"github.com/pkg/errors"
 	"os"
 	"sync"
 )
@@ -15,6 +16,10 @@ type nutsdbClient struct {
 	db *nutsdb.DB
 	m  *sync.Mutex
 }
+
+const (
+	defaultBucket = "cache"
+)
 
 func newNutsDB(opt *option.NutsDBOptions) *nutsdbClient {
 	// 确保目录存在
@@ -30,24 +35,24 @@ func newNutsDB(opt *option.NutsDBOptions) *nutsdbClient {
 	}
 
 	log.Infof("连接nutsdb成功, path: %s", opt.Path)
-	return &nutsdbClient{
+	client := &nutsdbClient{
 		db: db,
 		m:  &sync.Mutex{},
 	}
+	client.createBucket()
+	return client
 }
 
 func (n *nutsdbClient) Get(key string) (any, error) {
 	var result []byte
-	err := n.db.View(func(tx *nutsdb.Tx) error {
-		data, err := tx.Get("cache", []byte(key))
+	if err := n.db.View(func(tx *nutsdb.Tx) error {
+		data, err := tx.Get(defaultBucket, []byte(key))
 		if err != nil {
 			return err
 		}
 		result = data
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		log.Error(err)
 		return nil, err
 	}
@@ -64,30 +69,26 @@ func (n *nutsdbClient) Get(key string) (any, error) {
 
 func (n *nutsdbClient) Set(key string, val any) {
 	b, err := json.Marshal(val)
+	log.Infof("设置缓存, key: %s, value: %s", key, string(b))
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	err = n.db.Update(func(tx *nutsdb.Tx) error {
-		return tx.Put("cache", []byte(key), b, 0)
-	})
-
-	if err != nil {
+	if err = n.db.Update(func(tx *nutsdb.Tx) error {
+		return tx.Put(defaultBucket, []byte(key), b, 0)
+	}); err != nil {
 		log.Error(err)
 	}
 }
 
 func (n *nutsdbClient) Del(key string) error {
-	err := n.db.Update(func(tx *nutsdb.Tx) error {
-		return tx.Delete("cache", []byte(key))
-	})
-
-	if err != nil {
+	if err := n.db.Update(func(tx *nutsdb.Tx) error {
+		return tx.Delete(defaultBucket, []byte(key))
+	}); err != nil {
 		log.Error(err)
 		return fmt.Errorf("删除key失败: %w", err)
 	}
-
 	return nil
 }
 
@@ -97,7 +98,7 @@ func (n *nutsdbClient) GetCeq() (int64, error) {
 
 	var ceq int64 = 1
 	err := n.db.View(func(tx *nutsdb.Tx) error {
-		data, err := tx.Get("counter", []byte(constant.CeqPrefix))
+		data, err := tx.Get(defaultBucket, []byte(constant.CeqPrefix))
 		if err != nil {
 			return err
 		}
@@ -118,7 +119,7 @@ func (n *nutsdbClient) GetCeq() (int64, error) {
 	ceq++
 	err = n.db.Update(func(tx *nutsdb.Tx) error {
 		ceqBytes := []byte(fmt.Sprintf("%d", ceq))
-		return tx.Put("counter", []byte(constant.CeqPrefix), ceqBytes, 0)
+		return tx.Put(defaultBucket, []byte(constant.CeqPrefix), ceqBytes, 0)
 	})
 
 	if err != nil {
@@ -134,4 +135,23 @@ func (n *nutsdbClient) Close() error {
 		return n.db.Close()
 	}
 	return nil
+}
+
+func (n *nutsdbClient) createBucket() {
+	if err := n.db.Update(func(tx *nutsdb.Tx) error {
+		return tx.NewBucket(nutsdb.DataStructureBTree, defaultBucket)
+	}); err != nil {
+		if errors.Is(err, nutsdb.ErrBucketAlreadyExist) {
+			log.Info("default bucket已存在, 跳过创建")
+			return
+		}
+		log.Error("创建default bucket失败")
+	}
+
+	// 初始化序号
+	if err := n.db.Update(func(tx *nutsdb.Tx) error {
+		return tx.Put(defaultBucket, []byte(constant.CeqPrefix), []byte("1"), 0)
+	}); err != nil {
+		log.Error("初始化序号失败", err)
+	}
 }

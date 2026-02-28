@@ -127,6 +127,8 @@ func getSN() string {
 
 // GetCmdTypeFromXML 根据body获取XML配置文件中的根元素
 func GetCmdTypeFromXML(body string) (key string, err error) {
+	// go的xml库只支持utf8, 所以需要将GB2312转为utf8
+	body = strings.Replace(body, "GB2312", "UTF-8", 1)
 	decoder := xml.NewDecoder(strings.NewReader(body))
 	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
 		if charset == "GB2312" {

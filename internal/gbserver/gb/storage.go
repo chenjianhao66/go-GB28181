@@ -1,12 +1,13 @@
 package gb
 
 import (
+	"time"
+
 	st "github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
-	"time"
 )
 
 type data struct {
@@ -27,24 +28,32 @@ func (d *data) deviceOffline(device model.Device) error {
 	return nil
 }
 
+func (d *data) save(device model.Device) error {
+	return d.s.Devices().Save(device)
+}
+
 // 设备上线
 func (d *data) deviceOnline(device model.Device) error {
 	var err error
-	if device.RegisterTime.Equal(time.Time{}) {
+	_, exist := d.s.Devices().GetByDeviceId(device.DeviceId)
+	if !exist {
 		log.Infof("%s设备第一次注册，发送设备查询请求", device.DeviceId)
 		device.RegisterTime = time.Now()
 		device.Keepalive = time.Now()
 		device.Offline = 1
 		err = d.s.Devices().Save(device)
 	} else {
-		log.Infof("%s设备离线状态下重新上线，", device.DeviceId)
+		log.Infof("%s设备离线状态下重新上线.", device.DeviceId)
 		device.Offline = 1
 		err = d.s.Devices().Update(device)
 	}
 
 	err = cron.StartTask(device.DeviceId, cron.TaskKeepLive, 10*time.Second, func() {
 		device.Offline = 0
-		d.s.Devices().Save(device)
+		err := d.s.Devices().Update(device)
+		if err != nil {
+			log.Error(err)
+		}
 	})
 
 	return err
@@ -75,10 +84,12 @@ func (d *data) updateDeviceBasicConfig(device gbsip.DeviceBasicConfigResp) error
 }
 
 func (d *data) syncChannel(c DeviceCatalogResponse) {
+	log.Infof("同步通道信息，通道数量：%d, deviceId: %s", len(c.DeviceList.Items), c.DeviceID.DeviceID)
 	var channels []model.Channel
 	for _, item := range c.DeviceList.Items {
-		c := item.ConvertToChannel()
-		channels = append(channels, c)
+		newChannel := item.ConvertToChannel()
+		newChannel.ParentID = c.DeviceID.DeviceID
+		channels = append(channels, newChannel)
 	}
 	_ = d.s.Channel().SaveBatch(channels, c.DeviceID.DeviceID)
 }

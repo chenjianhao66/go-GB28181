@@ -15,7 +15,7 @@ type Meta struct {
 type Device struct {
 	Meta
 	// 设备的sip唯一id
-	DeviceId string `json:"deviceId" gorm:"column:deviceId;comment:设备的sip唯一id"`
+	DeviceId string `json:"deviceId" gorm:"column:deviceId;unique;comment:设备的sip唯一id"`
 
 	// 设备的sip域名
 	Domain string `json:"domain" gorm:"column:domain;comment:设备的sip域名"`

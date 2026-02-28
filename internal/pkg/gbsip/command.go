@@ -2,6 +2,8 @@ package gbsip
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/beevik/etree"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/cache"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
@@ -10,7 +12,6 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/parser"
 	"github.com/ghettovoice/gosip/sip"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // Cmd SIP协议的指令结构
@@ -36,13 +37,13 @@ func DeviceInfoQuery(d model.Device) {
 	body, _ := document.WriteToString()
 
 	request := sipRequestFactory.createMessageRequest(d, body)
-	log.Debugf("查询设备信息请求：\n", request)
+	log.Debugf("查询设备信息请求：%s\n", request.String())
 	_, _ = c.server.sendRequest(request)
 	DeviceCatalogQuery(d)
 }
 
 func DeviceCatalogQuery(device model.Device) {
-	xml, err := parser.CreateQueryXML(parser.CatalogCmdType, "44010200491118000001")
+	xml, err := parser.CreateQueryXML(parser.CatalogCmdType, device.DeviceId)
 	if err != nil {
 		return
 	}

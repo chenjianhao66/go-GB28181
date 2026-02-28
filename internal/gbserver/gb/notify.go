@@ -2,11 +2,14 @@ package gb
 
 import (
 	"encoding/xml"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/parser"
 	"github.com/ghettovoice/gosip/sip"
-	"net/http"
 )
 
 // xml解析心跳包结构
@@ -20,7 +23,9 @@ type keepalive struct {
 
 func keepaliveNotifyHandler(req sip.Request, tx sip.ServerTransaction) {
 	keepalive := &keepalive{}
-	if err := xml.Unmarshal([]byte(req.Body()), keepalive); err != nil {
+	body := req.Body()
+	body = strings.Replace(body, "GB2312", "UTF-8", 1)
+	if err := xml.Unmarshal([]byte(body), keepalive); err != nil {
 		log.Debugf("keepalive 消息解析xml失败：%s", err)
 		return
 	}
@@ -28,19 +33,27 @@ func keepaliveNotifyHandler(req sip.Request, tx sip.ServerTransaction) {
 	if !ok {
 		return
 	}
-	device, ok = storage.getDeviceById(device.DeviceId)
+	deviceInDb, ok := storage.getDeviceById(device.DeviceId)
 	if !ok {
 		log.Debugf("{%s}设备不存在", device.DeviceId)
 		_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusNotFound, "device "+device.DeviceId+"not found", ""))
 		return
 	}
 
-	// 更新心跳时间
-	if err := storage.deviceKeepalive(device.ID); err != nil {
-		log.Debugf("{%d,%s}更新心跳失败：%v", device.ID, device.DeviceId, err.Error())
+	if deviceInDb.Ip != device.Ip || deviceInDb.Port != device.Port {
+		log.Infof("设备 [%s] 地址发生变化， 新地址和端口为：[%s]:[%s]", deviceInDb.DeviceId, device.Ip, device.Port)
+		deviceInDb.Ip = device.Ip
+		deviceInDb.Port = device.Port
 	}
+	deviceInDb.Keepalive = time.Now()
+	deviceInDb.Offline = 1
+
+	if err := storage.save(deviceInDb); err != nil {
+		log.Debugf("{%d,%s}更新心跳失败：%v", deviceInDb.ID, deviceInDb.DeviceId, err.Error())
+	}
+
 	if err := cron.ResetTime(device.DeviceId, cron.TaskKeepLive); err != nil {
-		log.Errorf("{%d,%s}更新心跳失败：%v", device.ID, device.DeviceId, err.Error())
+		log.Errorf("{%d,%s}更新心跳失败：%v", deviceInDb.ID, deviceInDb.DeviceId, err.Error())
 	}
 
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))

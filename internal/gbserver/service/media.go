@@ -3,13 +3,13 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/cache"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model/constant"
 	util2 "github.com/chenjianhao66/go-GB28181/internal/pkg/util"
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
@@ -46,12 +46,12 @@ func (m *mediaService) Online(c model.MediaConfig) {
 	// please check this stream server if Whether in cache
 	key := fmt.Sprintf("%s:%s", constant.MediaServerPrefix, newMediaDetail.ID)
 	cacheDetail, _ := cache.Get(key)
-	if cacheDetail == "" {
-		newMediaDetail.SsrcConfig = model.NewSsrcConfig(newMediaDetail.ID, config.SIPDomain())
+	if cacheDetail == nil {
+		//newMediaDetail.SsrcConfig = model.NewSsrcConfig(newMediaDetail.ID, config.SIPDomain())
 	} else {
 		oldMediaDetail := model.MediaDetail{}
-		err := json.Unmarshal([]byte(cacheDetail.(string)), &oldMediaDetail)
-		if err != nil {
+		//log.Info("cacheDetail: ", cacheDetail)
+		if err := mapstructure.Decode(cacheDetail, &oldMediaDetail); err != nil {
 			log.Error("JSON数据解析到结构体失败!", err)
 			return
 		}

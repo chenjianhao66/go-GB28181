@@ -2,10 +2,11 @@ package cron
 
 import (
 	"fmt"
-	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
-	"github.com/pkg/errors"
 	"sync"
 	"time"
+
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
+	"github.com/pkg/errors"
 )
 
 type TaskType string
@@ -111,7 +112,7 @@ func getTask(deviceId string, taskType TaskType) (task, error) {
 
 	if taskList.getOneTask(deviceId, taskType) == nil {
 		log.Errorf("任务 %+v 设备ID: %+v 不存在!", taskType, deviceId)
-		return nil, errors.New(fmt.Sprintf("停止任务，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
+		return nil, errors.New(fmt.Sprintf("该任务不存在，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
 	}
 
 	t := taskList.getOneTask(deviceId, taskType)
