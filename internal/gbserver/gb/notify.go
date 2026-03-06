@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chenjianhao66/go-GB28181/internal/gbserver/service"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/parser"
@@ -52,8 +53,19 @@ func keepaliveNotifyHandler(req sip.Request, tx sip.ServerTransaction) {
 		log.Debugf("{%d,%s}更新心跳失败：%v", deviceInDb.ID, deviceInDb.DeviceId, err.Error())
 	}
 
-	if err := cron.ResetTime(device.DeviceId, cron.TaskKeepLive); err != nil {
-		log.Errorf("{%d,%s}更新心跳失败：%v", deviceInDb.ID, deviceInDb.DeviceId, err.Error())
+	_ = cron.StopTask(device.DeviceId, cron.TaskKeepLive)
+	interval := time.Duration(device.HeartBeatInterval) * time.Second * 3
+	if interval == 0 {
+		interval = time.Minute * 3
+	}
+	if err := cron.StartTask(device.DeviceId, cron.TaskKeepLive, interval, func() {
+		log.Infof("[%s] 设备心跳超时, 离线", deviceInDb.DeviceId)
+		deviceInDb.Offline = 0
+		if err := service.Device().Offline(deviceInDb); err != nil {
+			log.Errorf("[%s ]更新设备离线状态失败, err: %v", deviceInDb.DeviceId, err)
+		}
+	}); err != nil {
+		log.Errorf("启动设备 [%s] 心跳超时任务失败, err: %v", deviceInDb.DeviceId, err)
 	}
 
 	_ = tx.Respond(sip.NewResponseFromRequest("", req, http.StatusOK, http.StatusText(http.StatusOK), ""))

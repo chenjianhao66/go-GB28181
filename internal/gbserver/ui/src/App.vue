@@ -12,6 +12,8 @@ const handleSelect = (key: string) => {
     router.push('/video');
   } else if (key === '3') {
     router.push('/devices');
+  } else if (key === '4') {
+    router.push('/media');
   }
   activeIndex.value = key;
 };
@@ -31,6 +33,7 @@ const handleSelect = (key: string) => {
           <el-menu-item index="1">首页</el-menu-item>
           <el-menu-item index="2">视频监控</el-menu-item>
           <el-menu-item index="3">设备列表</el-menu-item>
+          <el-menu-item index="4">ZLM配置</el-menu-item>
         </el-menu>
       </el-header>
       <el-main>

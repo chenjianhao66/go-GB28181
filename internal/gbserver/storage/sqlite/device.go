@@ -74,3 +74,7 @@ func (d *devices) UpdateBasicConfig(entity model.Device) error {
 		HeartBeatCount:    entity.HeartBeatCount,
 	}).Error
 }
+
+func (d *devices) ResetStatusWhenOnline() error {
+	return d.db.Model(&model.Device{}).Where("offline = ?", 1).Updates(model.Device{Offline: 0}).Error
+}

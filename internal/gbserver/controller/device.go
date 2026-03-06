@@ -205,3 +205,9 @@ func (d *DeviceController) MobilePositionSubscribe(ctx *gin.Context) {
 	}
 	newResponse(ctx).success()
 }
+
+func (d *DeviceController) ResetDeviceStat() {
+	if err := d.srv.Devices().ResetStatusWhenOnline(); err != nil {
+		log.Warnf("重置设备状态失败: %s", err)
+	}
+}

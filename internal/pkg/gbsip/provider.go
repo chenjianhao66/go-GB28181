@@ -2,6 +2,11 @@ package gbsip
 
 import (
 	"fmt"
+	"math/rand"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/config"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/cache"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
@@ -9,10 +14,6 @@ import (
 	"github.com/ghettovoice/gosip/sip"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
-	"math/rand"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type (
@@ -69,7 +70,7 @@ func (f sipFactory) createInviteRequest(device model.Device, detail model.MediaD
 		FHost: to.Uri.Host(),
 	}
 	requestBuilder.SetRecipient(sipUri)
-	requestBuilder.AddVia(newVia("UDP"))
+	requestBuilder.AddVia(newVia(device.Transport))
 	requestBuilder.SetContact(newTo(config.SIPId(), config.SIPAddress(), config.SIPPort()))
 	contentType := sip.ContentType(contentTypeSDP)
 	requestBuilder.SetContentType(&contentType)
@@ -266,6 +267,8 @@ func getResponse(tx sip.ClientTransaction) sip.Response {
 			if resp.StatusCode() == sip.StatusCode(http.StatusContinue) ||
 				resp.StatusCode() == sip.StatusCode(http.StatusSwitchingProtocols) {
 				continue
+			} else {
+				log.Info("获取响应成功但响应码错误：", resp.StatusCode())
 			}
 			return resp
 		case <-timer.C:

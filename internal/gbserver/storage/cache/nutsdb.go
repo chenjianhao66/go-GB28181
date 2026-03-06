@@ -3,13 +3,14 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"sync"
+
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model/constant"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
 	"github.com/nutsdb/nutsdb"
 	"github.com/pkg/errors"
-	"os"
-	"sync"
 )
 
 type nutsdbClient struct {
@@ -57,14 +58,7 @@ func (n *nutsdbClient) Get(key string) (any, error) {
 		return nil, err
 	}
 
-	// 尝试解析为JSON
-	var val any
-	if err := json.Unmarshal(result, &val); err != nil {
-		// 如果不是JSON，直接返回字符串
-		return string(result), nil
-	}
-
-	return val, nil
+	return result, nil
 }
 
 func (n *nutsdbClient) Set(key string, val any) {

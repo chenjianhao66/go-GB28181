@@ -63,6 +63,7 @@ func (a *apiServer) installController() {
 	store := sqlite.GetSqliteFactory()
 	service.InitService(store)
 	initMediaHookRoute(a.engine.Group("/index/hook"))
+	initMediaRoute(a.engine.Group("/media"), store)
 	initDeviceRoute(a.engine.Group("/device"), store)
 	initChannelRoute(a.engine.Group("/channel"), store)
 	initControlRoute(a.engine.Group("/control"))
@@ -73,6 +74,15 @@ func (a *apiServer) installController() {
 
 func initSwaggerRoute(group *gin.RouterGroup) {
 	group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+}
+
+func initMediaRoute(group *gin.RouterGroup, store storage.Factory) {
+	mediaController := controller.NewMediaController(store)
+	//group.POST("/add", mediaController.Add)
+	//group.POST("/update", mediaController.Update)
+	//group.POST("/delete", mediaController.Delete)
+	group.GET("/list", mediaController.List)
+	//group.GET("/get/:id", mediaController.Get)
 }
 
 func initPlayRoute(group *gin.RouterGroup, store storage.Factory) {
@@ -105,6 +115,8 @@ func initMediaHookRoute(group *gin.RouterGroup) {
 
 func initDeviceRoute(group *gin.RouterGroup, factory storage.Factory) {
 	d := controller.NewDeviceController(factory)
+	// 当应用启动时，需要将设备状态置为离线
+	d.ResetDeviceStat()
 	group.GET("/list", d.List)
 
 	// 设备的基本配置

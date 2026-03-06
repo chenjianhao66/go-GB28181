@@ -1,10 +1,11 @@
 package service
 
 import (
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
-	"time"
 )
 
 type IDevice interface {
@@ -18,10 +19,15 @@ type IDevice interface {
 	Offline(device model.Device) error
 	GetByDeviceId(deviceId string) (model.Device, bool)
 	Keepalive(id uint) error
+	ResetStatusWhenOnline() error
 }
 
 type deviceService struct {
 	store storage.Factory
+}
+
+func (d *deviceService) ResetStatusWhenOnline() error {
+	return d.store.Devices().ResetStatusWhenOnline()
 }
 
 var (

@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       // 匹配所有 API 路径
-      '^/(device|channel|control|play|index|swagger|subscribe)': {
+      '^/(device|channel|control|play|index|swagger|subscribe|media)': {
         target: 'http://localhost:18080',
         changeOrigin: true
       }

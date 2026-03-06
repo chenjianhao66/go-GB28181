@@ -172,7 +172,7 @@ func MobilePositionSubscribe(device model.Device) error {
 }
 
 func Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, channelId string, rtpPort int) (model.StreamInfo, error) {
-	log.Debugf("点播开始，流id: %c, 设备ip: %c, SSRC: %c, rtp端口: %d\n", streamId, device.Ip, ssrc, rtpPort)
+	log.Debugf("点播开始，流id: %s, 设备ip: %s, SSRC: %s, rtp端口: %d\n", streamId, device.Ip, ssrc, rtpPort)
 	request := sipRequestFactory.createInviteRequest(device, detail, channelId, ssrc, rtpPort)
 	log.Debugf("发送invite请求：\n%s", request)
 	tx, err := c.server.sendRequest(request)
@@ -181,7 +181,10 @@ func Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, 
 	}
 
 	resp := getResponse(tx)
-	log.Debugf("收到invite响应：\n%s", resp)
+	if resp == nil {
+		return model.StreamInfo{}, errors.New("获取响应超时")
+	}
+	log.Debugf("收到invite响应：\n%s", resp.String())
 	log.Debugf("\ntransaction key: %s", tx.Key().String())
 
 	ackRequest := sip.NewAckRequest("", request, resp, "", nil)
@@ -194,7 +197,7 @@ func Play(device model.Device, detail model.MediaDetail, streamId, ssrc string, 
 	log.Debugf("发送ack确认：%s\n", ackRequest)
 	err = c.server.s.Send(ackRequest)
 	if err != nil {
-		log.Errorf("发送ack失败", err)
+		log.Errorf("发送ack失败, err: %v", err)
 		return model.StreamInfo{}, errors.WithMessage(err, "send play SipOption ack request fail")
 	}
 
