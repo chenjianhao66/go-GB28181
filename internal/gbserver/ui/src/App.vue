@@ -31,8 +31,6 @@ const handleSelect = (key: string) => {
           <el-menu-item index="1">设备列表</el-menu-item>
           <el-menu-item index="2">视频监控</el-menu-item>
           <el-menu-item index="3">ZLM配置</el-menu-item>
-          <el-menu-item index="3">设备列表</el-menu-item>
-          <el-menu-item index="4">ZLM配置</el-menu-item>
         </el-menu>
       </el-header>
       <el-main>

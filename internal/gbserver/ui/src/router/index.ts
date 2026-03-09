@@ -18,11 +18,6 @@ const router = createRouter({
             component: video
         },
         {
-            path: '/devices',
-            name: 'devices',
-            component: deviceList
-        },
-        {
             path: '/channels',
             name: 'channels',
             component: channelList
