@@ -7,6 +7,7 @@ all: check build
 
 .PHONY: setup
 setup:
+	@rm -rf ${RELEASE_FOLDER}
 	@mkdir -p ${RELEASE_FOLDER}/linux
 	@mkdir -p ${RELEASE_FOLDER}/darwin
 	@mkdir -p ${RELEASE_FOLDER}/windows
@@ -15,10 +16,14 @@ setup:
 	@cp -r ./config ${RELEASE_FOLDER}/windows
 
 .PHONY: build
-build: setup
+build: build-ui setup
 	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=linux go build -o "./${RELEASE_FOLDER}/linux/${BIN_FILE}" ./cmd/gbserver/gbserver.go
 	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=darwin go build -o "./${RELEASE_FOLDER}/darwin/${BIN_FILE}"
 	@export CGO_ENABLED=0 && GOARCH=amd64 GOOS=windows go build -o "./${RELEASE_FOLDER}/windows/${BIN_FILE}${WIN_APPENDIX}"
+
+.PHONY: build-ui
+build-ui:
+	@cd internal/gbserver/ui && rm -rf dist && npm run build
 
 .PHONY: clean
 clean:
