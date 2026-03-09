@@ -91,6 +91,7 @@ fetchDevices()
     </el-card>
 
     <el-table 
+      v-else-if="deviceList.length > 0"
       :data="deviceList" 
       v-loading="loading"
       stripe
@@ -122,7 +123,23 @@ fetchDevices()
       </el-table-column>
     </el-table>
 
-    <el-empty v-if="!loading && deviceList.length === 0" description="暂无设备" />
+    <el-empty 
+      v-if="!loading && deviceList.length === 0 && !error" 
+      description="暂无设备"
+    >
+      <template #image>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+          <circle cx="60" cy="60" r="50" fill="#f5f7fa" stroke="#dcdfe6" stroke-width="2"/>
+          <rect x="35" y="40" width="50" height="35" rx="3" fill="#909399" opacity="0.8"/>
+          <circle cx="60" cy="57" r="8" fill="#fff"/>
+          <rect x="55" y="75" width="10" height="15" fill="#909399" opacity="0.8"/>
+        </svg>
+      </template>
+      <div class="empty-tips">
+        <p>尚未添加任何设备</p>
+        <p class="sub-tip">请确保GB28181设备已正确配置并连接到本系统</p>
+      </div>
+    </el-empty>
 
     <!-- 详情弹窗 -->
     <el-dialog v-model="detailVisible" title="设备详情" width="600px">
@@ -229,5 +246,20 @@ fetchDevices()
 
 .error-card {
   margin-bottom: 20px;
+}
+
+.empty-tips {
+  text-align: center;
+}
+
+.empty-tips p {
+  margin: 8px 0;
+  color: #606266;
+  font-size: 14px;
+}
+
+.empty-tips .sub-tip {
+  color: #909399;
+  font-size: 12px;
 }
 </style>

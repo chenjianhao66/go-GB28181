@@ -13,6 +13,11 @@ const router = createRouter({
             redirect: '/devices'
         },
         {
+            path: '/devices',
+            name: 'devices',
+            component: deviceList
+        },
+        {
             path: '/video',
             name: 'video',
             component: video
