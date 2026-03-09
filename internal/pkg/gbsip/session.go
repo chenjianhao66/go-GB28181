@@ -3,6 +3,7 @@ package gbsip
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/cache"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model/constant"
 	"github.com/pkg/errors"
@@ -49,7 +50,7 @@ func (s txManage) getTx(deviceId, channelId string) (SipTX, error) {
 
 	var tx SipTX
 
-	err = json.Unmarshal([]byte(j.(string)), &tx)
+	err = json.Unmarshal(j.([]byte), &tx)
 	if err != nil {
 		return SipTX{}, errors.WithMessage(err, "unmarshal json data to struct fail")
 	}

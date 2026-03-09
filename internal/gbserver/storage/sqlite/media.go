@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"gorm.io/gorm"
 )
@@ -21,4 +22,14 @@ func (m *mediaStorage) GetMediaByID(id string) (model.MediaDetail, error) {
 	detail := model.MediaDetail{}
 	err := m.db.Where("id = ?", id).First(&detail).Error
 	return detail, err
+}
+
+func (m *mediaStorage) List() ([]model.MediaDetail, error) {
+	var list []model.MediaDetail
+	if err := m.db.Find(&list).Error; err != nil {
+		log.Error("获取流媒体服务列表失败, err: ", err)
+		return nil, err
+	}
+
+	return list, nil
 }

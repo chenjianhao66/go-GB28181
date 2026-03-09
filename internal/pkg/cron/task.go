@@ -2,10 +2,11 @@ package cron
 
 import (
 	"fmt"
-	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
-	"github.com/pkg/errors"
 	"sync"
 	"time"
+
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
+	"github.com/pkg/errors"
 )
 
 type TaskType string
@@ -20,6 +21,10 @@ type task interface {
 
 const (
 	TaskKeepLive TaskType = "KeepLive"
+)
+
+var (
+	ErrTaskNotExist = errors.New("任务不存在")
 )
 
 type taskSchedule map[string]map[TaskType]task
@@ -104,16 +109,9 @@ func ResetTime(deviceId string, taskType TaskType) error {
 }
 
 func getTask(deviceId string, taskType TaskType) (task, error) {
-	if taskList.getAllTasksForOneDevice(deviceId) == nil {
-		log.Errorf("任务 %+v 设备ID: %+v 不存在!", taskType, deviceId)
-		return nil, errors.New(fmt.Sprintf("停止任务，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
+	if taskList.getAllTasksForOneDevice(deviceId) == nil || taskList.getOneTask(deviceId, taskType) == nil {
+		return nil, ErrTaskNotExist
 	}
-
-	if taskList.getOneTask(deviceId, taskType) == nil {
-		log.Errorf("任务 %+v 设备ID: %+v 不存在!", taskType, deviceId)
-		return nil, errors.New(fmt.Sprintf("停止任务，任务类型: %+v, 设备ID: %+v", taskType, deviceId))
-	}
-
 	t := taskList.getOneTask(deviceId, taskType)
 
 	return t, nil
@@ -139,7 +137,7 @@ func createTask(deviceId string, taskType TaskType, duration time.Duration, runF
 		taskList.putOneTask(deviceId, taskType, t)
 
 	default:
-		log.Errorf("不支持的任务类型：", taskType)
+		log.Errorf("不支持的任务类型：%s", taskType)
 		return nil, errors.New(fmt.Sprintf("不支持的任务类型: %+v, 设备ID: %+v",
 			taskType, deviceId))
 	}

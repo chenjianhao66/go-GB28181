@@ -1,12 +1,15 @@
 package controller
 
 import (
+	"strings"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/service"
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/cron"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 
 type MediaHookController struct{}
@@ -18,7 +21,6 @@ func NewMediaHookController() MediaHookController {
 // OnServerStarted 服务器启动事件，可以用于监听服务器崩溃重启；此事件对回复不敏感。
 func (m MediaHookController) OnServerStarted(c *gin.Context) {
 	log.Info("zlm 上线...")
-	defer c.JSON(200, "success")
 	conf := model.MediaConfig{}
 
 	if err := c.ShouldBind(&conf); err != nil {
@@ -30,8 +32,8 @@ func (m MediaHookController) OnServerStarted(c *gin.Context) {
 		return
 	}
 	// do something
-	log.Info("收到zlm上线事件,media_server_id:", conf.GeneralMediaServerId, "ip:", conf.RemoteIp, "port:", conf.HttpPort)
 	conf.RemoteIp = c.RemoteIP()
+	log.Info("收到zlm上线事件,media_server_id:", conf.GeneralMediaServerId, " ip:", conf.RemoteIp, " port:", conf.HttpPort)
 	go service.Media().Online(conf)
 	replyAllowMsg(c)
 }
@@ -48,6 +50,18 @@ func (m MediaHookController) OnServerKeepalive(c *gin.Context) {
 	}
 	// do something
 	log.Debugf("收到 Zlm id: %s 心跳", keepalive.MediaServerId)
+	if err := service.Media().Keepalive(keepalive.MediaServerId); err != nil {
+		log.Error(err)
+	}
+	_ = cron.StopTask(keepalive.MediaServerId, cron.TaskKeepLive)
+	if err := cron.StartTask(keepalive.MediaServerId, cron.TaskKeepLive, 20*time.Second, func() {
+		log.Debugf("ZLM心跳超时, id: %s", keepalive.MediaServerId)
+		if err := service.Media().Offline(keepalive.MediaServerId); err != nil {
+			log.Error("ZLM心跳超时, 更新数据失败, err: ", err)
+		}
+	}); err != nil {
+		log.Error(err)
+	}
 	replyAllowMsg(c)
 }
 
@@ -92,7 +106,7 @@ func (m MediaHookController) OnStreamChanged(c *gin.Context) {
 		return
 	}
 	// do something
-	log.Info("收到流改变事件,stream_id:", hookParam.Stream, "register: ", hookParam.Register, "protocol:", hookParam.Schema)
+	log.Info("收到流改变事件,stream_id:", hookParam.Stream, " register: ", hookParam.Register, " protocol:", hookParam.Schema)
 	replyAllowMsg(c)
 }
 

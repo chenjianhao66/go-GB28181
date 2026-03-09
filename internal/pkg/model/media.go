@@ -2,35 +2,37 @@ package model
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model/constant"
 	"github.com/spf13/cast"
-	"time"
 )
 
 // MediaDetail 流媒体明细
 type MediaDetail struct {
 	// secret
-	ID                string     `gorm:"column:id;primaryKey;unique"`
-	Ip                string     `gorm:"column:ip;size:100"`
-	HookIp            string     `gorm:"column:hookIp"`
-	SdpIp             string     `gorm:"column:sdpIp"`
-	StreamIp          string     `gorm:"column:streamIp"`
-	HttpPort          int        `gorm:"column:httpPort"`
-	HttpSSlPort       int        `gorm:"column:httpSSLPort"`
-	RtmpPort          int        `gorm:"column:rtmpPort"`
-	RtmpSSlPort       int        `gorm:"column:rtmpSSLPort"`
-	RtpProxyPort      int        `gorm:"column:rtpProxyPort"`
-	RtspPort          int        `gorm:"column:rtspPort"`
-	RtspSSLPort       int        `gorm:"column:rtspSSLPort"`
-	RtpEnable         bool       `gorm:"column:rtpEnable"`
-	RtpPortRange      string     `gorm:"column:rtpPortRange"`
-	Secret            string     `gorm:"column:secret"`
-	Default           bool       `gorm:"column:default"`
-	HookAliveInterval int        `gorm:"column:hookAliveInterval"`
-	CreateTime        time.Time  `gorm:"column:createTime;autoUpdateTime:milli"`
-	UpdateTime        time.Time  `gorm:"column:updateTime;autoUpdateTime:milli"`
-	LastKeepaliveTime time.Time  `gorm:"column:lastKeepaliveTime;autoUpdateTime:milli"`
-	SsrcConfig        SsrcConfig `gorm:"-"`
+	ID                string     `gorm:"column:id;primaryKey;unique" json:"ID,omitempty"`
+	Ip                string     `gorm:"column:ip;size:100" json:"ip,omitempty"`
+	HookIp            string     `gorm:"column:hookIp" json:"hookIp,omitempty"`
+	SdpIp             string     `gorm:"column:sdpIp" json:"sdpIp,omitempty"`
+	StreamIp          string     `gorm:"column:streamIp" json:"streamIp,omitempty"`
+	HttpPort          int        `gorm:"column:httpPort" json:"httpPort,omitempty"`
+	HttpSSlPort       int        `gorm:"column:httpSSLPort" json:"httpSSlPort,omitempty"`
+	RtmpPort          int        `gorm:"column:rtmpPort" json:"rtmpPort,omitempty"`
+	RtmpSSlPort       int        `gorm:"column:rtmpSSLPort" json:"rtmpSSlPort,omitempty"`
+	RtpProxyPort      int        `gorm:"column:rtpProxyPort" json:"rtpProxyPort,omitempty"`
+	RtspPort          int        `gorm:"column:rtspPort" json:"rtspPort,omitempty"`
+	RtspSSLPort       int        `gorm:"column:rtspSSLPort" json:"rtspSSLPort,omitempty"`
+	RtpEnable         bool       `gorm:"column:rtpEnable" json:"rtpEnable,omitempty"`
+	RtpPortRange      string     `gorm:"column:rtpPortRange" json:"rtpPortRange,omitempty"`
+	Secret            string     `gorm:"column:secret" json:"secret,omitempty"`
+	Default           bool       `gorm:"column:default" json:"default,omitempty"`
+	Status            bool       `gorm:"column:status" json:"status"`
+	HookAliveInterval int        `gorm:"column:hookAliveInterval" json:"hookAliveInterval,omitempty"`
+	CreateTime        time.Time  `gorm:"column:createTime;autoUpdateTime:milli" json:"createTime"`
+	UpdateTime        time.Time  `gorm:"column:updateTime;autoUpdateTime:milli" json:"updateTime"`
+	LastKeepaliveTime time.Time  `gorm:"column:lastKeepaliveTime;autoUpdateTime:milli" json:"lastKeepaliveTime"`
+	SsrcConfig        SsrcConfig `gorm:"-" json:"ssrcConfig"`
 }
 
 func (m MediaDetail) TableName() string {
@@ -40,6 +42,7 @@ func (m MediaDetail) TableName() string {
 func NewMediaDetailWithConfig(config *MediaConfig) MediaDetail {
 	return MediaDetail{
 		ID:                config.GeneralMediaServerId,
+		HookIp:            config.RemoteIp,
 		Ip:                config.RemoteIp,
 		SdpIp:             config.RemoteIp,
 		StreamIp:          config.RemoteIp,

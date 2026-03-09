@@ -20,11 +20,13 @@ type DeviceStore interface {
 	GetByDeviceId(deviceId string) (model.Device, bool)
 	Keepalive(id uint) error
 	UpdateBasicConfig(entity model.Device) error
+	ResetStatusWhenOnline() error
 }
 
 type MediaStorage interface {
 	GetMediaByID(id string) (model.MediaDetail, error)
 	Save(config model.MediaDetail) error
+	List() ([]model.MediaDetail, error)
 }
 
 type ChannelStore interface {

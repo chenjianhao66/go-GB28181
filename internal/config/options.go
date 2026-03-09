@@ -14,7 +14,7 @@ type Options struct {
 	MediaOptions  *MediaOptions  `json:"media" mapstructure:"media"`
 }
 
-const defaultConfigName = "application"
+const defaultConfigName = "gbserver"
 
 var (
 	o = initOptions()

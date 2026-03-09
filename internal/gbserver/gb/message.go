@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
@@ -13,7 +16,6 @@ import (
 	"github.com/ghettovoice/gosip/sip"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
-	"net/http"
 )
 
 var (
@@ -99,7 +101,7 @@ type deviceInfo struct {
 
 func deviceInfoHandler(req sip.Request, tx sip.ServerTransaction) {
 	d := &deviceInfo{}
-	if err := xml.Unmarshal([]byte(req.Body()), d); err != nil {
+	if err := xml.Unmarshal([]byte(sipRequestBodyWrap(req.Body())), d); err != nil {
 		log.Error("解析deviceInfo响应包出错", err)
 		return
 	}
@@ -168,7 +170,6 @@ func (i CatalogItem) ConvertToChannel() model.Channel {
 	c.CivilCode = i.CivilCode
 	c.Address = i.Address
 	c.Parental = i.Parental
-	c.ParentID = i.ParentID
 	c.SafetyWay = i.SafetyWay
 	c.RegisterWay = i.RegisterWay
 	c.Secrecy = i.Secrecy
@@ -193,7 +194,7 @@ func catalogHandler(req sip.Request, tx sip.ServerTransaction) {
 
 	catalog := DeviceCatalogResponse{}
 
-	err := xml.Unmarshal([]byte(req.Body()), &catalog)
+	err := xml.Unmarshal([]byte(sipRequestBodyWrap(req.Body())), &catalog)
 
 	if err != nil {
 		// maybe charset is GBK, so take request body convert utf8
@@ -226,4 +227,8 @@ func deviceStatusHandler(req sip.Request, tx sip.ServerTransaction) {
 	syn.HasSyncTask(fmt.Sprintf("%s_%s", syn.KeyQueryDeviceStatus, status.DeviceID.DeviceID), func(e *syn.Entity) {
 		e.Ok(*status)
 	})
+}
+
+func sipRequestBodyWrap(body string) string {
+	return strings.Replace(body, "GB2312", "UTF-8", 1)
 }

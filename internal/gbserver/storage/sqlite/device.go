@@ -1,9 +1,10 @@
 package sqlite
 
 import (
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 type devices struct {
@@ -53,7 +54,7 @@ func (d *devices) GetByDeviceId(deviceId string) (model.Device, bool) {
 func (d *devices) Keepalive(id uint) error {
 	dev := &model.Device{}
 	dev.ID = id
-	return d.db.Model(dev).Update("keepalive", time.Now()).Error
+	return d.db.Model(dev).Updates(model.Device{Keepalive: time.Now(), Offline: 1}).Error
 }
 
 func (d *devices) UpdateDeviceInfo(entity model.Device) error {
@@ -72,4 +73,8 @@ func (d *devices) UpdateBasicConfig(entity model.Device) error {
 		HeartBeatInterval: entity.HeartBeatInterval,
 		HeartBeatCount:    entity.HeartBeatCount,
 	}).Error
+}
+
+func (d *devices) ResetStatusWhenOnline() error {
+	return d.db.Model(&model.Device{}).Where("offline = ?", 1).Updates(model.Device{Offline: 0}).Error
 }

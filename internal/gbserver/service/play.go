@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/cache"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
@@ -44,8 +45,8 @@ func (p playService) Play(deviceId, channelId string) (model.StreamInfo, error) 
 	key := fmt.Sprintf("%s:%s", constant.StreamInfoPrefix, streamId)
 	streamJSON, _ := cache.Get(key)
 
-	if streamJSON != "" {
-		if err := json.Unmarshal([]byte(streamJSON.(string)), &streamInfo); err != nil {
+	if streamJSON != nil {
+		if err := json.Unmarshal(streamJSON.([]byte), &streamInfo); err != nil {
 			return model.StreamInfo{}, errors.WithMessage(err, "unmarshal json data to struct fail")
 		}
 
@@ -57,9 +58,9 @@ func (p playService) Play(deviceId, channelId string) (model.StreamInfo, error) 
 		if rtpServerInfo.Code == model.RespondSuccess {
 			if rtpServerInfo.Exist == true {
 				return streamInfo, nil
-			} else {
-				streamInfo = model.StreamInfo{}
 			}
+
+			streamInfo = model.StreamInfo{}
 		} else {
 			// zlm服务连接失败，重新创建rtp服务并连接
 			log.Errorf("media api response: %+v\n", rtpServerInfo.Msg)

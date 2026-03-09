@@ -6,4 +6,5 @@ const (
 
 const (
 	KeyQueryDeviceStatus = "CallBack_Qeury_DeviceStatus"
+	KeyQueryCatalog      = "CallBack_Qeury_DeviceCatalog"
 )

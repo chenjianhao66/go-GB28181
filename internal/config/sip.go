@@ -21,7 +21,6 @@ func newSIPOptions() *SIPOptions {
 		Id:     "44010200492000000001",
 	}
 	_ = viper.UnmarshalKey("sip", s)
-	s.Id = "44010200492000000001"
 	return s
 }
 

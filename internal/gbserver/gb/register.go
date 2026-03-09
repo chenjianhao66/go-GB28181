@@ -30,7 +30,7 @@ func RegisterHandler(req sip.Request, tx sip.ServerTransaction) {
 		device, ok := storage.getDeviceById(fromRequest.DeviceId)
 
 		if !ok {
-			log.Debug("not found from device from database")
+			log.Debugf("在存储中没有找到[%s]设备信息, 将请求的设备保存到存储", fromRequest.DeviceId)
 			device = fromRequest
 		}
 

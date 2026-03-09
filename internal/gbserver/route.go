@@ -3,17 +3,19 @@ package gbserver
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/controller"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/service"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/sqlite"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/option"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files"
+	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
-	"time"
 )
 
 type apiServer struct {
@@ -58,18 +60,30 @@ func (a *apiServer) Close() error {
 func (a *apiServer) installController() {
 	//store := mysql.GetMySQLFactory()
 	// 使用sqlite3
+	gin.SetMode(gin.ReleaseMode)
 	store := sqlite.GetSqliteFactory()
 	service.InitService(store)
 	initMediaHookRoute(a.engine.Group("/index/hook"))
+	initMediaRoute(a.engine.Group("/media"), store)
 	initDeviceRoute(a.engine.Group("/device"), store)
 	initChannelRoute(a.engine.Group("/channel"), store)
 	initControlRoute(a.engine.Group("/control"))
 	initPlayRoute(a.engine.Group("/play"), store)
 	initSwaggerRoute(a.engine.Group("/"))
+	initUiRoute(a.engine)
 }
 
 func initSwaggerRoute(group *gin.RouterGroup) {
 	group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+}
+
+func initMediaRoute(group *gin.RouterGroup, store storage.Factory) {
+	mediaController := controller.NewMediaController(store)
+	//group.POST("/add", mediaController.Add)
+	//group.POST("/update", mediaController.Update)
+	//group.POST("/delete", mediaController.Delete)
+	group.GET("/list", mediaController.List)
+	//group.GET("/get/:id", mediaController.Get)
 }
 
 func initPlayRoute(group *gin.RouterGroup, store storage.Factory) {
@@ -102,6 +116,8 @@ func initMediaHookRoute(group *gin.RouterGroup) {
 
 func initDeviceRoute(group *gin.RouterGroup, factory storage.Factory) {
 	d := controller.NewDeviceController(factory)
+	// 当应用启动时，需要将设备状态置为离线
+	d.ResetDeviceStat()
 	group.GET("/list", d.List)
 
 	// 设备的基本配置
@@ -110,16 +126,27 @@ func initDeviceRoute(group *gin.RouterGroup, factory storage.Factory) {
 	// 查询设备状态
 	group.GET("/status/:deviceId", d.StatusQuery)
 	// 查询设备文件目录
-	//group.GET("/catalog",)
+	group.POST("/catalog/:deviceId", d.CatalogQuery)
 
 	// 订阅
-	group.POST("/subscribe/alarm:deviceId", d.AlarmSubscribe)
-	group.POST("/subscribe/catalog:deviceId", d.CatalogSubscribe)
-	group.POST("/subscribe/mobilePosition:deviceId", d.MobilePositionSubscribe)
+	group.POST("/subscribe/alarm/:deviceId", d.AlarmSubscribe)
+	group.POST("/subscribe/catalog/:deviceId", d.CatalogSubscribe)
+	group.POST("/subscribe/mobilePosition/:deviceId", d.MobilePositionSubscribe)
 
 }
 
 func initChannelRoute(group *gin.RouterGroup, factory storage.Factory) {
 	c := controller.NewChannelController(factory)
 	group.GET("/list/:device", c.List)
+}
+
+func initUiRoute(engine *gin.Engine) {
+	folder, err := static.EmbedFolder(staticFiles, "ui/dist")
+	if err != nil {
+		panic(err)
+	}
+	engine.Use(static.Serve("/", folder))
+	engine.NoRoute(func(context *gin.Context) {
+		context.Redirect(http.StatusMovedPermanently, "/")
+	})
 }

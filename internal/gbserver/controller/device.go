@@ -2,6 +2,8 @@ package controller
 
 import (
 	"fmt"
+	"time"
+
 	srv "github.com/chenjianhao66/go-GB28181/internal/gbserver/service"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/gbsip"
@@ -10,7 +12,6 @@ import (
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/syn"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"time"
 )
 
 var (
@@ -18,8 +19,10 @@ var (
 	errDeviceBasicConfigQuery        = errors.New("获取设备基本配置失败")
 	errDeviceBasicConfigQueryTimeOut = errors.New("获取设备基本配置超时")
 
-	errDeviceStatusQuery        = errors.New("获取设备状态失败")
-	errDeviceStatusQueryTimeOut = errors.New("获取设备状态失败")
+	errDeviceStatusQuery         = errors.New("获取设备状态失败")
+	errDeviceStatusQueryTimeOut  = errors.New("获取设备状态超时")
+	errDeviceCatalogQuery        = errors.New("获取设备目录失败")
+	errDeviceCatalogQueryTimeOut = errors.New("获取设备目录超时")
 )
 
 // DeviceController 设备控制器
@@ -114,6 +117,7 @@ func (d *DeviceController) StatusQuery(ctx *gin.Context) {
 	}
 
 	entity := syn.NewDelayTask(fmt.Sprintf("%s_%s", syn.KeyQueryDeviceStatus, deviceId), 3*time.Second)
+	defer entity.Close()
 	if err := gbsip.DeviceStatusQuery(device); err != nil {
 		log.Error(err)
 		newResponse(ctx).fail(errDeviceStatusQuery.Error())
@@ -127,6 +131,32 @@ func (d *DeviceController) StatusQuery(ctx *gin.Context) {
 		}
 		log.Error(err)
 		newResponse(ctx).fail(errDeviceStatusQuery.Error())
+		return
+	}
+
+	newResponse(ctx).successWithAny(data)
+}
+
+func (d *DeviceController) CatalogQuery(ctx *gin.Context) {
+	deviceId := ctx.Param("deviceId")
+	device, ok := d.srv.Devices().GetByDeviceId(deviceId)
+	if !ok {
+		newResponse(ctx).fail(errDeviceNotFound.Error())
+		return
+	}
+
+	task := syn.NewDelayTask(fmt.Sprintf("%s_%s", syn.KeyQueryCatalog, deviceId), 3*time.Second)
+	//defer task.Close()
+
+	gbsip.DeviceCatalogQuery(device)
+	data, err := task.Wait()
+	if err != nil {
+		if errors.Is(err, syn.ErrTimeOut) {
+			newResponse(ctx).fail(errDeviceCatalogQueryTimeOut.Error())
+			return
+		}
+		log.Error(err)
+		newResponse(ctx).fail(errDeviceCatalogQuery.Error())
 		return
 	}
 
@@ -154,6 +184,7 @@ func (d *DeviceController) CatalogSubscribe(ctx *gin.Context) {
 		newResponse(ctx).fail(errDeviceNotFound.Error())
 		return
 	}
+	log.Info("开始订阅目录, dev: ", device.Name)
 	if err := gbsip.CatalogSubscribe(device); err != nil {
 		newResponse(ctx).fail("订阅失败")
 		return
@@ -173,4 +204,10 @@ func (d *DeviceController) MobilePositionSubscribe(ctx *gin.Context) {
 		return
 	}
 	newResponse(ctx).success()
+}
+
+func (d *DeviceController) ResetDeviceStat() {
+	if err := d.srv.Devices().ResetStatusWhenOnline(); err != nil {
+		log.Warnf("重置设备状态失败: %s", err)
+	}
 }

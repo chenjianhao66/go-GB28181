@@ -1,10 +1,11 @@
 package util
 
 import (
-	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
-	"github.com/parnurzeal/gorequest"
 	"net/http"
 	"time"
+
+	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
+	"github.com/parnurzeal/gorequest"
 )
 
 var client = gorequest.New()
@@ -16,7 +17,6 @@ func SendPost(url string, params map[string]interface{}) (b string, err error) {
 
 			if response.StatusCode != http.StatusOK || errs != nil {
 				log.Error(errs)
-				err = errs[0]
 				return
 			}
 			b = body

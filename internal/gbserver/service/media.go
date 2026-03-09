@@ -3,7 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chenjianhao66/go-GB28181/internal/config"
+	"time"
+
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage"
 	"github.com/chenjianhao66/go-GB28181/internal/gbserver/storage/cache"
 	"github.com/chenjianhao66/go-GB28181/internal/pkg/log"
@@ -17,10 +18,13 @@ import (
 
 type IMedia interface {
 	Online(config model.MediaConfig)
+	Offline(mediaId string) error
 	GetRtpServerInfo(stream string, mediaDetail model.MediaDetail) (model.GetRtpInfoResp, error)
 	OpenRtpServer(detail model.MediaDetail, stream string) (rtpPort int, ssrc string, err error)
 	GetMedia(serverId string) (model.MediaDetail, error)
 	GetDefaultMedia() (model.MediaDetail, error)
+	List() ([]model.MediaDetail, error)
+	Keepalive(mediaId string) error
 }
 
 type mediaService struct {
@@ -46,19 +50,26 @@ func (m *mediaService) Online(c model.MediaConfig) {
 	// please check this stream server if Whether in cache
 	key := fmt.Sprintf("%s:%s", constant.MediaServerPrefix, newMediaDetail.ID)
 	cacheDetail, _ := cache.Get(key)
-	if cacheDetail == "" {
-		newMediaDetail.SsrcConfig = model.NewSsrcConfig(newMediaDetail.ID, config.SIPDomain())
+	if cacheDetail == nil {
+		//newMediaDetail.SsrcConfig = model.NewSsrcConfig(newMediaDetail.ID, config.SIPDomain())
 	} else {
 		oldMediaDetail := model.MediaDetail{}
-		err := json.Unmarshal([]byte(cacheDetail.(string)), &oldMediaDetail)
-		if err != nil {
-			log.Error("JSON数据解析到结构体失败!", err)
-			return
+		if err := json.Unmarshal(cacheDetail.([]byte), &oldMediaDetail); err != nil {
+			log.Errorf("unmarshal json data to struct fail, err: %v", err)
 		}
 		newMediaDetail.SsrcConfig = oldMediaDetail.SsrcConfig
 	}
 	cache.Set(key, newMediaDetail)
 	log.Info(fmt.Sprintf("ZleMedia流媒体连接成功,id: [ %s ] , addr: [ %s:%v ]", newMediaDetail.ID, newMediaDetail.Ip, newMediaDetail.HttpPort))
+}
+
+func (m *mediaService) Offline(mediaId string) error {
+	media, err := m.GetMedia(mediaId)
+	if err != nil {
+		return errors.WithMessage(err, fmt.Sprintf("根据id [ %s ] 获取流媒体信息失败", mediaId))
+	}
+	media.Status = false
+	return m.store.Media().Save(media)
 }
 
 // GetRtpServerInfo 从流媒体服务获取rtp明细信息
@@ -88,7 +99,8 @@ func (m *mediaService) GetRtpServerInfo(stream string, mediaDetail model.MediaDe
 func (m *mediaService) OpenRtpServer(detail model.MediaDetail, stream string) (rtpPort int, ssrc string, err error) {
 	ssrc = util2.GetSSRC(util2.RealTime)
 
-	url := fmt.Sprintf(constant.MediaCreateRtpApiUrl, detail.Ip, detail.HttpPort)
+	// todo 先写死ip为localhost
+	url := fmt.Sprintf(constant.MediaCreateRtpApiUrl, "localhost", detail.HttpPort)
 	params := map[string]interface{}{
 		"secret":     detail.Secret,
 		"port":       0,
@@ -137,7 +149,7 @@ func (m *mediaService) GetDefaultMedia() (model.MediaDetail, error) {
 
 	if data != "" {
 		detail := model.MediaDetail{}
-		err := json.Unmarshal([]byte(data.(string)), &detail)
+		err := json.Unmarshal(data.([]byte), &detail)
 		if err != nil {
 			return model.MediaDetail{}, errors.WithMessage(err, "unmarshal json data to struct fail")
 		}
@@ -151,4 +163,18 @@ func (m *mediaService) GetDefaultMedia() (model.MediaDetail, error) {
 	}
 
 	return detail, nil
+}
+
+func (m *mediaService) List() ([]model.MediaDetail, error) {
+	return m.store.Media().List()
+}
+
+func (m *mediaService) Keepalive(mediaId string) error {
+	detail, err := m.store.Media().GetMediaByID(mediaId)
+	if err != nil {
+		return errors.WithMessage(err, fmt.Sprintf("根据id [ %s ] 获取流媒体信息失败", mediaId))
+	}
+	detail.LastKeepaliveTime = time.Now()
+	detail.Status = true
+	return m.store.Media().Save(detail)
 }
