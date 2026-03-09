@@ -60,6 +60,7 @@ func (a *apiServer) Close() error {
 func (a *apiServer) installController() {
 	//store := mysql.GetMySQLFactory()
 	// 使用sqlite3
+	gin.SetMode(gin.ReleaseMode)
 	store := sqlite.GetSqliteFactory()
 	service.InitService(store)
 	initMediaHookRoute(a.engine.Group("/index/hook"))
@@ -146,7 +147,6 @@ func initUiRoute(engine *gin.Engine) {
 	}
 	engine.Use(static.Serve("/", folder))
 	engine.NoRoute(func(context *gin.Context) {
-		fmt.Printf("%s doesn't exists, redirect on /\n", context.Request.URL.Path)
 		context.Redirect(http.StatusMovedPermanently, "/")
 	})
 }
