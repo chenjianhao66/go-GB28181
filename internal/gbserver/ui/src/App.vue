@@ -7,12 +7,10 @@ const activeIndex = ref('1');
 const handleSelect = (key: string) => {
   console.log("current key: ",key);
   if (key === '1') {
-    router.push('/');
+    router.push('/devices');
   } else if (key === '2') {
     router.push('/video');
   } else if (key === '3') {
-    router.push('/devices');
-  } else if (key === '4') {
     router.push('/media');
   }
   activeIndex.value = key;
@@ -30,8 +28,9 @@ const handleSelect = (key: string) => {
             :ellipsis="false"
             @select="handleSelect"
         >
-          <el-menu-item index="1">首页</el-menu-item>
+          <el-menu-item index="1">设备列表</el-menu-item>
           <el-menu-item index="2">视频监控</el-menu-item>
+          <el-menu-item index="3">ZLM配置</el-menu-item>
           <el-menu-item index="3">设备列表</el-menu-item>
           <el-menu-item index="4">ZLM配置</el-menu-item>
         </el-menu>

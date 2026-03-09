@@ -36,7 +36,7 @@ type StreamInfo struct {
 
 	// https-flv地址
 	HttpsFlv string `json:"httpsFlv"`
-	WSFly    string `json:"WSFlv"`
+	//WSFly         string `json:"WSFly"`
 	//WSSFly        string `json:"WSSFly"`
 
 	// fmp4地址
@@ -62,7 +62,7 @@ const (
 	rtsp = "rtsp://%s:554/rtp/%s"
 	rtmp = "rtmp://%s:1935/rtp/%s"
 	http = "http://%s:8000/rtp/%s/hls.m3u8"
-	flv  = "http://%s:80/rtp/%s.live.flv"
+	flv  = "http://%s:8000/rtp/%s.live.flv"
 	fmp4 = "http://%s:8000/rtp/%s.llive.mp4"
 	ts   = "http://%s:8000/rtp/%s.llive.ts"
 )

@@ -10,8 +10,7 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'home',
-            component: home
+            redirect: '/devices'
         },
         {
             path: '/video',

@@ -2,6 +2,7 @@
 import { ref, onMounted, shallowRef } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import FlvPlayer from '../components/FlvPlayer.vue'
 import HlsPlayer from '../components/HlsPlayer.vue'
 
 interface Device {
@@ -37,6 +38,7 @@ interface StreamInfo {
   flv: string
   httpsFlv: string
   hls: string
+  fmp4: string
 }
 
 const loading = ref(false)
@@ -159,7 +161,7 @@ onMounted(() => {
           children: 'children',
           label: 'label'
         }"
-        :load="(node: TreeNode, resolve: Function) => {
+        :load="(node: any, resolve: Function) => {
           if (node.level === 0) {
             resolve(treeData)
           } else if (node.data.isDevice) {
